@@ -48,6 +48,9 @@
   .brief .q{font-family:var(--sans);font-size:13px;margin-top:8px;color:var(--txt)}
   .brief .q b{color:var(--acc)}
   .brief .s{font-family:var(--sans);font-size:12px;color:var(--mut);margin-top:6px}
+  .brief.b3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .brief .wl{font-family:var(--sans);font-size:12px;margin-top:8px;line-height:1.7}
+  .brief .wl a{color:var(--txt);text-decoration:none;border-bottom:1px dotted var(--mut);cursor:pointer}
   #map{height:620px;border:1px solid var(--txt);margin-top:14px}
   .maptools{display:flex;flex-wrap:wrap;gap:8px 16px;font-family:var(--sans);font-size:13px;margin-top:12px;align-items:center}
   .maptools label{display:flex;gap:5px;align-items:center;cursor:pointer}
@@ -139,6 +142,7 @@
     ol.rank .val{width:84px}
     table.juris{display:block;overflow-x:auto}
     table.juris td{min-width:120px}
+    .brief.b3{grid-template-columns:minmax(0,1fr)}
   }
 </style>
 </head>
@@ -212,7 +216,7 @@
     <h2>The whole system, clickable.</h2>
     <p>Platforms, every reported completion at its bottom-hole location, the 16 leases, the offshore lines to Las Flores Canyon, and onshore CA-324 and CA-325 to Pentland. The live layer adds NOAA buoys and the last 30 days of earthquakes.</p>
     <div class="maptools">
-      <span class="seg" id="colorBy"><button data-v="status" class="on">Wells by status</button><button data-v="platform">by platform</button><button data-v="deferred">by deferred bopd</button></span>
+      <span class="seg" id="colorBy"><button data-v="status" class="on">Wells by status</button><button data-v="platform">by platform</button><button data-v="deferred">by deferred bopd</button><button data-v="why">by idle reason</button></span>
       <span class="seg" id="pipeBy"><button data-v="product" class="on">Pipes by product</button><button data-v="regulator">by regulator</button></span>
       <label><input type="checkbox" id="tgLeases" checked> Leases</label>
       <label><input type="checkbox" id="tgWells" checked> Wells</label>
@@ -288,6 +292,9 @@
       </tr></thead><tbody></tbody></table>
     </div>
     <p class="note" style="margin-top:8px">Netback default: Sable's 2H 2026 realized-price assumption of $55 to $59/bbl (after marketing and transport deducts, on $83 Brent) times its 83.6% net revenue interest ≈ $48/bbl, before LOE. Job cost default: Sable's ~$800K per perf-add. Payback = job cost ÷ (at-stake bopd × netback), and assumes the job restores the full rate. Potential = oil ÷ producing days, same rule as the uptime section. It's a screen of public data, not a well review: it can't see mechanical condition, lift, or work done since <span class="latestLbl"></span>. Click a row to open the well.</p>
+    <h3>Why the grey wells are down, and how likely they are to come back</h3>
+    <p>Every completion BSEE reports as non-producing in <span class="latestLbl"></span>, sorted by what the record says is holding it. The likelihoods are my judgment from public data. BSEE doesn't say why any single well is down. On the map, choose <b>Wells by idle reason</b> to see the same groups.</p>
+    <div class="brief" id="idleWhy"></div>
     <h3>Idle wells by pre-shut-in rate</h3>
     <div class="card"><ol class="rank" id="idleRank"></ol></div>
   </div>
@@ -424,6 +431,21 @@ wells.forEach(w => {
   const pre = w.series.filter(x => x[0] >= '2015-01' && x[0] <= '2015-04');
   const po = pre.reduce((s, x) => s + x[1], 0), pw = pre.reduce((s, x) => s + x[3], 0);
   w.pre_wc = po + pw > 0 ? pw / (po + pw) : null;
+});
+
+// ---------- why each idle well is down (public-record grouping, not a diagnosis)
+const WHY = {
+  hondo:    {c: '#7a5195', t: 'Hondo, waiting on platform restart'},
+  capacity: {c: '#f4a259', t: 'Ran in 2025 to 2026, then shut in'},
+  mech:     {c: '#e3120b', t: 'No oil since the 2015 shut-in'},
+  longshot: {c: '#555555', t: 'Long shots'},
+};
+wells.forEach(w => {
+  if (w.group !== 'idle') { w.why = null; return; }
+  const ranSince = w.series.some(r => r[0] >= '2025-01' && r[1] > 0);
+  const old = !w.last_prod_month || w.last_prod_month < '2015-01';
+  w.why = w.platform === 'Hondo' ? (w.pre_rate < 50 || old ? 'longshot' : 'hondo')
+        : ranSince ? 'capacity' : (w.pre_rate >= 50 ? 'mech' : 'longshot');
 });
 
 // ---------- platform ops (from completions): [month, oil, days, wells, potRaw, water, gas]
@@ -675,7 +697,8 @@ L.geoJSON({type: 'FeatureCollection', features: D.pipes.features.filter(f => f.p
 
 let colorMode = 'status';
 const defColor = d => d >= 300 ? '#e3120b' : d >= 100 ? '#f4a259' : d > 0 ? '#f6d55c' : '#cfcfcf';
-const wellColor = w => colorMode === 'status' ? GC[w.group] || '#555' : colorMode === 'platform' ? PC[w.platform] : defColor(w.deferred);
+const wellColor = w => colorMode === 'status' ? GC[w.group] || '#555' : colorMode === 'platform' ? PC[w.platform]
+  : colorMode === 'why' ? (w.why ? WHY[w.why].c : '#dcdcdc') : defColor(w.deferred);
 const wellLayer = L.layerGroup().addTo(map), stickLayer = L.layerGroup();
 function drawWells(){
   wellLayer.clearLayers(); stickLayer.clearLayers();
@@ -722,6 +745,7 @@ const bounds = L.latLngBounds([]); leaseLayer.eachLayer(l => bounds.extend(l.get
 function legend(){
   const wl = colorMode === 'status' ? Object.entries(GC).map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)}</span>`)
     : colorMode === 'platform' ? Object.entries(PC).map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k}</span>`)
+    : colorMode === 'why' ? Object.values(WHY).map(x => `<span><i class="sw" style="background:${x.c}"></i>${x.t}</span>`).concat(['<span><i class="sw" style="background:#dcdcdc"></i>Producing or injecting</span>'])
     : [['300+', '#e3120b'], ['100 to 300', '#f4a259'], ['under 100', '#f6d55c'], ['none', '#cfcfcf']].map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k} bopd deferred</span>`);
   const pl = pipeMode === 'regulator'
     ? ['<span><i class="ln" style="border-color:#1f77b4"></i>MMA (federal OCS)</span>', '<span><i class="ln" style="border-color:#e3120b"></i>PHMSA (CA-324 solid, CA-325 dashed)</span>']
@@ -870,6 +894,35 @@ segToggle('wwLens', v => { wwLens = v; renderWW(); });
 document.querySelector('#wwTable tbody').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) { selectWell(tr.dataset.api); document.getElementById('book').scrollIntoView({behavior: 'smooth'}); } });
 renderWW();
 
+// idle-reason cards
+const SRC_HONDO = 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000113/a991_socxhondopressrelease.htm';
+const SRC_COMP = 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000092/a993certainoperationalands.htm';
+const SRC_CAP = 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000105/a991_2q26xpr.htm';
+const byWhy = k => wells.filter(w => w.why === k).sort((a, b) => b.pre_rate - a.pre_rate);
+const wlist = ws => ws.map(w => `<a data-api="${w.api}">${esc(w.name)}</a> ${w.pre_rate >= 1 ? fmt(w.pre_rate) : '–'}`).join(' · ');
+const sumPre = ws => ws.reduce((s, w) => s + (w.pre_rate || 0), 0);
+const gH = byWhy('hondo'), gC = byWhy('capacity'), gM = byWhy('mech'), gL = byWhy('longshot');
+const wet = gC.filter(w => w.pre_wc != null && w.pre_wc >= 0.85);
+const idleWhyCards = [
+  [gH, 'hondo', 'Likelihood: high. Timing depends on one approval.',
+   `The whole platform is still shut. Restart is waiting on MMA approval of Sable's commissioning submission, which Sable expected in October 2026, with restart in Q4 2026. Perf-adds go on 9 of the 15 production wells first. The date has slipped from June to end-Q2, Q3, September, then Q4. These wells made ~${fmt(sumPre(gH))} bopd in Jan to Apr 2015.`,
+   `${link(SRC_HONDO, 'Sable 8-K, Sept 28, 2026')}`],
+  [gC, 'capacity', 'Likelihood: high. These wells have already flowed since the restart.',
+   `They produced at some point since early 2025 and were shut in by ${mlabel(latest)}. Sable names three limits: the number of wells online is limited by compressors because gas output is lower than expected (52 of 77 producers online on June 18), Las Flores Canyon can process about 80% of Harmony and Heritage capacity, and downstream partners capped sales at 40,000 bopd from July. When capacity is short, some wells stay shut in.${wet.length ? ` The wettest (${wet.map(w => esc(w.name)).join(', ')}, 85%+ water in 2015) are likely last back, because water handling is part of the limit.` : ''}`,
+   `${link(SRC_COMP, 'Sable 8-K exhibit, July 2026')} · ${link(SRC_HONDO, '8-K, Sept 28')} · ${link(SRC_CAP, 'Q2 release')}`],
+  [gM, 'mech', 'Likelihood: medium. Probably needs rig work.',
+   `Harmony and Heritage completions with a real 2015 rate that haven't made oil since the restart, even while their neighbors came back. Capacity alone doesn't explain that, so a mechanical or reservoir problem is more likely. These are workover candidates to price against a ~$800K perf-add.`,
+   'BSEE OGOR-A'],
+  [gL, 'longshot', 'Likelihood: low.',
+   `Completions with no oil since before 2015, or under 50 bopd before the shut-in. Most are likely to stay down or be repurposed.`,
+   'BSEE OGOR-A'],
+].filter(c => c[0].length);
+document.getElementById('idleWhy').innerHTML = idleWhyCards.map(([ws, k, lk, t, s]) => `<div>
+  <div class="v" style="color:${WHY[k].c}">${ws.length} wells</div><div class="h">${WHY[k].t}</div>
+  <div class="q"><b>${lk}</b></div><div class="t">${t}</div>
+  <div class="wl">${wlist(ws)} <span class="note">(2015 bopd)</span></div><div class="s">${s}</div></div>`).join('');
+document.getElementById('idleWhy').addEventListener('click', e => { const a = e.target.closest('a[data-api]'); if (a) { selectWell(a.dataset.api); document.getElementById('book').scrollIntoView({behavior: 'smooth'}); } });
+
 // ---------- CSV export
 function downloadCSV(name, head, rows){
   const q = v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
@@ -882,8 +935,8 @@ document.getElementById('wwCsv').addEventListener('click', () => downloadCSV(`sy
   ['well', 'platform', 'api', 'status', 'pre_shut_in_bopd_2015', 'best_2mo_restart_potential_bopd', 'best_2mo_window', 'latest_potential_bopd', 'latest_days_on', 'water_cut_2015', 'water_cut_latest', 'at_stake_bopd', 'usd_per_day', 'payback_days', 'signal'],
   wwCur.map(({w, st, usd, pb}) => [w.name, w.platform, w.api, w.group, r0(w.pre_rate), r0(w.best), bestLbl(w), r0(w.pot), w.days, r2(w.pre_wc), r2(w.wc), r0(st), r0(usd), r0(pb), signal(w)])));
 document.getElementById('bookCsv').addEventListener('click', () => downloadCSV(`syu_well_book_${latest}.csv`,
-  ['well', 'platform', 'api', 'lease', 'status', 'actual_bopd', 'potential_bopd', 'days_on', 'water_cut', 'pre_shut_in_bopd_2015', 'best_2mo_restart_potential_bopd', 'last_oil_month', 'cum_oil_bbl_1996', 'spud', 'md_ft', 'tvd_ft', 'lat', 'lon'],
-  wells.map(w => [w.name, w.platform, w.api, w.lease, w.group, r0(w.act), r0(w.pot), w.days, r2(w.wc), r0(w.pre_rate), r0(w.best), w.last_prod_month, w.cum_oil, w.spud, w.md_ft, w.tvd_ft, w.lat, w.lon])));
+  ['well', 'platform', 'api', 'lease', 'status', 'actual_bopd', 'potential_bopd', 'days_on', 'water_cut', 'pre_shut_in_bopd_2015', 'best_2mo_restart_potential_bopd', 'last_oil_month', 'idle_reason', 'cum_oil_bbl_1996', 'spud', 'md_ft', 'tvd_ft', 'lat', 'lon'],
+  wells.map(w => [w.name, w.platform, w.api, w.lease, w.group, r0(w.act), r0(w.pot), w.days, r2(w.wc), r0(w.pre_rate), r0(w.best), w.last_prod_month, w.why ? WHY[w.why].t : '', w.cum_oil, w.spud, w.md_ft, w.tvd_ft, w.lat, w.lon])));
 
 // ---------- production room
 const months = D.unit.map(r => r[0]);
