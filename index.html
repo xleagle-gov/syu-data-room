@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Santa Ynez Unit Data Room</title>
+<meta name="description" content="An engineering data room for the Santa Ynez Unit, built from public federal records and Sable Offshore's own filings: uptime and deferred production, a rate scenario model, the well book, restart and workover boards, obligations calendar, live channel conditions.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --bg:#ffffff; --bg2:#f7f7f5; --line:#e2e2e0;
+    --txt:#121212; --mut:#5a5a5a; --acc:#e3120b;
+    --prod:#1a9850; --inj:#1f77b4;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:var(--serif);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  a{color:var(--acc)}
+  header.hero{padding:44px 0 28px;border-bottom:3px double var(--txt)}
+  .kicker{font-family:var(--sans);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:12px}
+  h1{font-size:clamp(28px,4.4vw,44px);line-height:1.15;letter-spacing:-.5px;margin-bottom:12px}
+  .lede{font-size:18px;color:#333;max-width:800px}
+  .offer{font-size:17px;color:var(--txt);max-width:800px;margin-top:12px;border-left:4px solid var(--acc);padding:4px 0 4px 14px;font-style:italic}
+  .asof{font-family:var(--sans);font-size:13px;color:var(--mut);margin-top:12px}
+  nav.jump{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line)}
+  nav.jump .wrap{display:flex;gap:4px 16px;padding-top:10px;padding-bottom:10px;font-family:var(--sans);font-size:13px;overflow-x:auto;white-space:nowrap}
+  nav.jump a{text-decoration:none;font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));border:1px solid var(--txt);margin:24px 0 0}
+  .stat{padding:14px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stat .v{font-size:26px;font-weight:700;color:var(--acc);line-height:1.1}
+  .stat .l{font-family:var(--sans);font-size:12px;color:var(--mut);margin-top:4px}
+  .stat .s{font-family:var(--sans);font-size:11px;color:#8a8a8a;margin-top:2px}
+  section{padding:40px 0;border-bottom:1px solid var(--line);scroll-margin-top:44px}
+  .sec-label{font-family:var(--sans);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:8px}
+  h2{font-size:clamp(22px,3vw,30px);line-height:1.25;margin-bottom:10px}
+  h3{font-size:19px;margin:22px 0 8px}
+  p{font-size:16px;color:#333;margin-bottom:12px;max-width:820px}
+  .note{font-family:var(--sans);font-size:13px;color:var(--mut);line-height:1.5}
+  .src{font-family:var(--sans);font-size:12px;color:var(--mut)}
+  .src a{color:var(--mut)}
+  .brief{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--txt);margin-top:16px}
+  .brief>div{padding:18px 20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .brief .v{font-size:30px;font-weight:700;color:var(--acc);line-height:1.1}
+  .brief .h{font-size:17px;font-weight:700;margin-top:6px}
+  .brief .t{font-size:15px;color:#333;margin-top:4px}
+  .brief .q{font-family:var(--sans);font-size:13px;margin-top:8px;color:var(--txt)}
+  .brief .q b{color:var(--acc)}
+  .brief .s{font-family:var(--sans);font-size:12px;color:var(--mut);margin-top:6px}
+  #map{height:620px;border:1px solid var(--txt);margin-top:14px}
+  .maptools{display:flex;flex-wrap:wrap;gap:8px 16px;font-family:var(--sans);font-size:13px;margin-top:12px;align-items:center}
+  .maptools label{display:flex;gap:5px;align-items:center;cursor:pointer}
+  .seg{display:inline-flex;border:1px solid var(--txt)}
+  .seg button{font-family:var(--sans);font-size:12px;padding:6px 10px;background:#fff;border:none;cursor:pointer;color:var(--txt)}
+  .seg button+button{border-left:1px solid var(--txt)}
+  .seg button.on{background:var(--txt);color:#fff}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--sans);font-size:12px;color:var(--mut);margin-top:10px}
+  .sw{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+  .ln{display:inline-block;width:22px;height:0;border-top:3px solid;margin-right:5px;vertical-align:3px}
+  .leaflet-popup-content{font-family:var(--sans);font-size:13px;line-height:1.45;margin:12px 14px}
+  .leaflet-popup-content b{font-size:14px}
+  .leaflet-popup-content table{border-collapse:collapse;margin-top:6px}
+  .leaflet-popup-content td{padding:1px 8px 1px 0;vertical-align:top}
+  .leaflet-popup-content td:first-child{color:var(--mut)}
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-family:var(--sans);font-size:13px;margin:14px 0 10px}
+  .filters select,.filters input{font-family:var(--sans);font-size:13px;padding:6px 8px;border:1px solid var(--txt);background:#fff;color:var(--txt)}
+  .tablewrap{overflow-x:auto;border:1px solid var(--txt);max-height:520px;overflow-y:auto}
+  table.book{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:13px}
+  table.book th{position:sticky;top:0;background:var(--bg2);text-align:left;padding:8px 10px;border-bottom:1px solid var(--txt);cursor:pointer;white-space:nowrap;font-weight:600}
+  table.book td{padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.book td.n,table.book th.n{text-align:right;font-variant-numeric:tabular-nums}
+  table.book tbody tr{cursor:pointer}
+  table.book tbody tr:hover{background:#fbf3f2}
+  table.book tr.sel{background:#fde8e6}
+  .pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px;color:#fff;font-weight:600}
+  .p-producing{background:var(--prod)} .p-injection{background:var(--inj)} .p-idle{background:#8a8a8a}
+  .detail{border:1px solid var(--txt);border-top:none;padding:16px 18px;background:#fff}
+  .detail h4{font-size:17px;margin-bottom:4px}
+  .chartbox{position:relative;height:300px;margin-top:10px}
+  .chartbox.tall{height:380px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .card{border:1px solid var(--txt);padding:18px;min-width:0}
+  .card h3{margin-top:0}
+  ol.rank{list-style:none;font-family:var(--sans);font-size:13px}
+  ol.rank li{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  ol.rank li:hover{background:#fbf3f2}
+  ol.rank .nm{width:56px;font-weight:700;flex:none}
+  ol.rank .pl{width:auto;min-width:66px;color:var(--mut);flex:none;white-space:nowrap}
+  ol.rank .bar{flex:1;height:10px;background:var(--bg2);position:relative;min-width:40px}
+  ol.rank .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--acc)}
+  ol.rank .val{width:96px;text-align:right;font-variant-numeric:tabular-nums;flex:none}
+  .callout{border-left:4px solid var(--acc);background:var(--bg2);padding:12px 16px;font-family:var(--sans);font-size:14px;margin:14px 0;max-width:900px}
+  table.juris{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:13px;margin-top:10px}
+  table.juris th{text-align:left;border-bottom:1px solid var(--txt);padding:8px 10px;background:var(--bg2)}
+  table.juris td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top}
+  table.juris td.q{color:var(--mut);font-style:italic}
+  .model{display:grid;grid-template-columns:300px 1fr;gap:22px;margin-top:14px}
+  .model>*{min-width:0}
+  .ctl{font-family:var(--sans);font-size:13px}
+  .ctl label{display:block;margin:0 0 12px}
+  .ctl label span{display:flex;justify-content:space-between;font-weight:600}
+  .ctl label span b{color:var(--acc);font-variant-numeric:tabular-nums}
+  .ctl input[type=range]{width:100%;accent-color:#e3120b}
+  .ctl small{display:block;color:var(--mut);font-weight:400}
+  .out{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--txt);margin-bottom:10px}
+  .out div{padding:10px 12px;border-right:1px solid var(--line)}
+  .out .v{font-size:22px;font-weight:700;color:var(--acc)}
+  .out .l{font-family:var(--sans);font-size:12px;color:var(--mut)}
+  .timeline{list-style:none;border-left:2px solid var(--txt);margin:14px 0 0 6px;font-family:var(--sans);font-size:14px}
+  .timeline li{position:relative;padding:0 0 14px 18px}
+  .timeline li:before{content:"";position:absolute;left:-7px;top:5px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--txt)}
+  .timeline li.next:before{background:var(--acc);border-color:var(--acc)}
+  .timeline .d{font-weight:700;display:block}
+  .timeline .x{color:#333}
+  .timeline .k{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin-left:8px;font-weight:600}
+  .live{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border:1px solid var(--txt);margin-top:14px}
+  .live>div{padding:16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-family:var(--sans);font-size:13px}
+  .live .v{font-family:var(--serif);font-size:24px;font-weight:700}
+  .live .l{color:var(--mut)}
+  ul.plain{margin:8px 0 12px 20px;font-size:15px;color:#333}
+  ul.plain li{margin-bottom:6px}
+  .cta{text-align:center;padding:52px 0}
+  .btn{display:inline-block;background:var(--acc);color:#fff;font-family:var(--sans);font-weight:700;padding:14px 36px;text-decoration:none;font-size:15px;margin-top:14px}
+  .btn.ghost{background:#fff;color:var(--acc);border:2px solid var(--acc);margin-left:10px}
+  footer{padding:28px 0 44px;text-align:center;color:#8a8a8a;font-size:13px;font-family:var(--sans);border-top:3px double var(--txt)}
+  .hide{display:none}
+  details{margin-top:18px;border-top:1px solid var(--line);padding-top:8px}
+  summary{cursor:pointer;padding:6px 0}
+  summary h3{margin:0}
+  @media(max-width:860px){
+    .grid2,.model,.brief{grid-template-columns:minmax(0,1fr)}
+    .out{grid-template-columns:1fr 1fr 1fr}
+    .out .v{font-size:18px}
+    #map{height:460px}
+    .chartbox.tall{height:300px}
+    .btn.ghost{margin-left:0}
+    ol.rank .pl{display:none}
+    ol.rank .val{width:84px}
+    table.juris{display:block;overflow-x:auto}
+    table.juris td{min-width:120px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Santa Ynez Unit · Engineering data room · Built from public records</div>
+    <h1>The Santa Ynez Unit, from every public record, in one room.</h1>
+    <p class="lede">Federal well, production, platform, lease and pipeline records, read alongside Sable's own 10-K, 10-Qs and releases. The room answers operating questions: where barrels are being deferred, which wells to work next, what Hondo should add, and what is due when. Every number links to its source.</p>
+    <p class="offer">I want to give Sable as much value as I can, in whatever form helps most. This room is my start, and it's yours to use.</p>
+    <p class="asof" id="asof"></p>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<nav class="jump"><div class="wrap">
+  <a href="#briefing">Briefing</a><a href="#uptime">Uptime</a><a href="#scenario">Rate model</a><a href="#map-sec">Map</a><a href="#book">Well book</a><a href="#hondo">Hondo</a><a href="#idle">Well-work screen</a><a href="#production">Production</a><a href="#filings" class="fil">Reserves &amp; plan</a><a href="#calendar">Calendar</a><a href="#guidance" class="fil">Guidance</a><a href="#live">Live channel</a><a href="#sources">Sources</a>
+</div></nav>
+
+<section id="briefing">
+  <div class="wrap">
+    <div class="sec-label">01 · Briefing</div>
+    <h2>Six things the public record says about the SYU right now.</h2>
+    <p>Each one comes with the question I'd want answered next. Most of those answers need data only Sable has.</p>
+    <div class="brief" id="briefCards"></div>
+  </div>
+</section>
+
+<section id="uptime">
+  <div class="wrap">
+    <div class="sec-label">02 · Uptime and deferred production</div>
+    <h2>The wells can make more than they are making.</h2>
+    <p>BSEE reports each well's days on production. A well's <b>potential</b> is its oil divided by its producing days: what it would make running every day of the month. The gap between potential and actual is deferred production, from facility limits, sales constraints or downtime. Wells with fewer than 7 producing days in a month count at actual, so start-up months don't inflate the gap.</p>
+    <div class="seg" id="upPlat"><button data-v="All" class="on">Harmony + Heritage</button><button data-v="Harmony">Harmony</button><button data-v="Heritage">Heritage</button></div>
+    <div class="chartbox tall"><canvas id="upChart"></canvas></div>
+    <div class="grid2" style="margin-top:22px">
+      <div class="card">
+        <h3 id="defTitle">Where the deferred barrels sat</h3>
+        <ol class="rank" id="defRank"></ol>
+        <p class="note" style="margin-top:8px">Deferred bopd = potential minus actual for the latest month. Click a well to open it in the well book.</p>
+      </div>
+      <div class="card">
+        <h3>Uptime by platform</h3>
+        <div class="chartbox"><canvas id="uptChart"></canvas></div>
+        <p class="note" style="margin-top:8px">Producing well-days divided by (producing wells × days in month). Pre-shutdown Exxon-era months shown for reference.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="scenario">
+  <div class="wrap">
+    <div class="sec-label">03 · Rate scenario model</div>
+    <h2>What has to be true to hit the rate.</h2>
+    <p>Start from what Harmony and Heritage showed they can make in the latest federal month, then move the levers. Defaults come from the public record and Sable's disclosures. It's a scenario calculator, not a forecast.</p>
+    <div class="model">
+      <div class="ctl" id="ctl"></div>
+      <div>
+        <div class="out" id="mOut"></div>
+        <div class="chartbox tall"><canvas id="mChart"></canvas></div>
+        <p class="note" id="mNote" style="margin-top:8px"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="map-sec">
+  <div class="wrap">
+    <div class="sec-label">04 · The map</div>
+    <h2>The whole system, clickable.</h2>
+    <p>Platforms, every reported completion at its bottom-hole location, the 16 leases, the offshore lines to Las Flores Canyon, and onshore CA-324 and CA-325 to Pentland. The live layer adds NOAA buoys and the last 30 days of earthquakes.</p>
+    <div class="maptools">
+      <span class="seg" id="colorBy"><button data-v="status" class="on">Wells by status</button><button data-v="platform">by platform</button><button data-v="deferred">by deferred bopd</button></span>
+      <span class="seg" id="pipeBy"><button data-v="product" class="on">Pipes by product</button><button data-v="regulator">by regulator</button></span>
+      <label><input type="checkbox" id="tgLeases" checked> Leases</label>
+      <label><input type="checkbox" id="tgWells" checked> Wells</label>
+      <label><input type="checkbox" id="tgSticks"> Well paths</label>
+      <label><input type="checkbox" id="tgPipes" checked> Pipelines</label>
+      <label><input type="checkbox" id="tgLive" checked> Live (buoys, quakes)</label>
+    </div>
+    <div id="map"></div>
+    <div class="legend" id="legend"></div>
+    <p class="note" style="margin-top:8px">Onshore CA-324 and CA-325 routes are approximate (generalized EIA line); PHMSA's detailed route data needs registration. The Heritage-to-Harmony gas line is drawn straight because no route is published.</p>
+  </div>
+</section>
+
+<section id="book">
+  <div class="wrap">
+    <div class="sec-label">05 · The well book</div>
+    <h2>Every completion, with its full history.</h2>
+    <p>The completions BSEE reports on the three platforms. Click a row for monthly oil, water and gas since 2012 and the producing days behind them. Rates are calendar-day averages.</p>
+    <div class="filters">
+      <select id="fPlat"><option value="">All platforms</option><option>Hondo</option><option>Harmony</option><option>Heritage</option></select>
+      <select id="fGroup"><option value="">All statuses</option><option value="producing">Producing</option><option value="injection">Injection</option><option value="idle">Idle</option></select>
+      <input id="fText" placeholder="Search well or API" size="18">
+      <span class="note" id="fCount"></span>
+      <button class="seg" id="bookCsv" style="padding:6px 12px;background:#fff;cursor:pointer;font-family:var(--sans);font-size:12px">Download CSV</button>
+    </div>
+    <div class="tablewrap">
+      <table class="book" id="bookTable">
+        <thead><tr>
+          <th data-k="name">Well</th><th data-k="platform">Platform</th><th data-k="group">Status</th>
+          <th data-k="last_rate" class="n">Actual bopd</th><th data-k="pot" class="n">Potential bopd</th><th data-k="days" class="n">Days on</th>
+          <th data-k="wc" class="n">Water cut</th><th data-k="pre_rate" class="n">Pre-shut-in bopd</th><th data-k="last_prod_month">Last oil</th>
+          <th data-k="cum_oil" class="n">Cum oil 1996+ (bbl)</th><th data-k="lease">Lease</th><th data-k="api">API</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="detail" id="detail"><p class="note">Select a well to see its history.</p></div>
+    <p class="src" style="margin-top:8px">Actual, potential, days on and water cut are for the latest federal month. Pre-shut-in = Jan to Apr 2015 average, the last full months before the May 2015 Line 901 shut-in. Sources: <a href="https://www.data.bsee.gov/Main/PacificProduction.aspx" target="_blank" rel="noopener">BSEE Pacific OGOR-A</a>, <a href="https://www.data.bsee.gov/Main/PacificWell.aspx" target="_blank" rel="noopener">BSEE Pacific borehole file</a>.</p>
+  </div>
+</section>
+
+<section id="hondo">
+  <div class="wrap">
+    <div class="sec-label">06 · Hondo restart board</div>
+    <h2>Which Hondo wells carried the platform before shut-in.</h2>
+    <div class="callout" id="hondoCallout"></div>
+    <div class="grid2">
+      <div class="card"><h3>Hondo completions by pre-shut-in rate</h3><ol class="rank" id="hondoRank"></ol></div>
+      <div class="card">
+        <h3>Hondo oil and water cut, 2011 to 2015</h3>
+        <div class="chartbox"><canvas id="hondoChart"></canvas></div>
+        <p class="note" style="margin-top:10px">BSEE shows no Hondo oil from June 2015 through the latest published month. Hondo's producing-day potential declined about <span id="hondoDecl"></span> a year from 2011 to 2015.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="idle">
+  <div class="wrap">
+    <div class="sec-label">07 · Well-work screen</div>
+    <h2>Which Harmony and Heritage wells to look at first, and what each is worth.</h2>
+    <p>Three lists from the federal record, each a different kind of opportunity. <b>Slipping</b>: wells whose best two months since the restart beat the latest month. These are the cheapest barrels, because the well has already shown the rate. <b>Below 2015</b>: producing wells still short of what they made before the shut-in. <b>Idle</b>: non-producing completions ranked by their pre-shut-in rate.</p>
+    <div class="callout" id="wwCallout"></div>
+    <div class="filters">
+      <span class="seg" id="wwLens"><button data-v="slip" class="on">Slipping since restart</button><button data-v="gap">Below 2015 rate</button><button data-v="idle">Idle</button></span>
+      <label>Netback $/bbl <input id="wwNet" type="number" min="0" max="150" step="1" value="48" style="width:70px"></label>
+      <label>Job cost $K <input id="wwCost" type="number" min="0" max="10000" step="50" value="800" style="width:80px"></label>
+      <button class="seg" id="wwCsv" style="padding:6px 12px;background:#fff;cursor:pointer;font-family:var(--sans);font-size:12px">Download CSV</button>
+    </div>
+    <div class="tablewrap" style="max-height:560px">
+      <table class="book" id="wwTable"><thead><tr>
+        <th>Well</th><th>Platform</th><th>Status</th><th class="n">2015 bopd</th><th class="n">Best 2 mo. since restart</th><th class="n">Latest potential</th><th class="n">Days on</th><th class="n">Water 2015 → now</th><th class="n">At stake bopd</th><th class="n">$/day at stake</th><th class="n">Payback, days</th><th>Signal</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+    <p class="note" style="margin-top:8px">Netback default: Sable's 2H 2026 realized-price assumption of $55 to $59/bbl (after marketing and transport deducts, on $83 Brent) times its 83.6% net revenue interest ≈ $48/bbl, before LOE. Job cost default: Sable's ~$800K per perf-add. Payback = job cost ÷ (at-stake bopd × netback), and assumes the job restores the full rate. Potential = oil ÷ producing days, same rule as the uptime section. It's a screen of public data, not a well review: it can't see mechanical condition, lift, or work done since <span class="latestLbl"></span>. Click a row to open the well.</p>
+    <h3>Idle wells by pre-shut-in rate</h3>
+    <div class="card"><ol class="rank" id="idleRank"></ol></div>
+  </div>
+</section>
+
+<section id="production">
+  <div class="wrap">
+    <div class="sec-label">08 · Production room</div>
+    <h2>Public record and company figures, side by side and labeled.</h2>
+    <p>Bars are BSEE monthly oil by platform. Red points are Sable's disclosed figures, which are company estimates. BSEE runs about four months behind, so the two don't overlap yet.</p>
+    <div class="seg" id="prodRange" style="margin-top:6px"><button data-v="2025-01" class="on">Restart, 2025 on</button><button data-v="2011-01">2011 on</button></div>
+    <div class="chartbox tall"><canvas id="prodChart"></canvas></div>
+    <div class="grid2" style="margin-top:24px">
+      <div class="card">
+        <h3>Water cut by platform</h3>
+        <div class="chartbox"><canvas id="wcChart"></canvas></div>
+        <p class="note" style="margin-top:8px">Water / (oil + water). Produced water is what Las Flores Canyon has to separate and handle.</p>
+      </div>
+      <div class="card">
+        <h3>Gas-oil ratio by platform</h3>
+        <div class="chartbox"><canvas id="gorChart"></canvas></div>
+        <p class="note" style="margin-top:8px">Reported gas (scf) per barrel of oil. Post-restart GOR reads far below the 2011 to 2015 level. That matches what Sable has disclosed: the wells are making less gas than expected, and the number of wells online is limited by compressor availability. Tracking GOR well by well shows which wells are gas-starved for lift, and where to point compression first.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="filings" class="fil">
+  <div class="wrap">
+    <div class="sec-label">09 · Reserves, plan and facilities</div>
+    <h2>What Sable has told the SEC, in one place.</h2>
+    <p>Pulled from the 10-K, 10-Qs, 8-Ks and investor presentations, each with its exact quote and link.</p>
+    <div id="filBlocks"></div>
+  </div>
+</section>
+
+<section id="calendar">
+  <div class="wrap">
+    <div class="sec-label">10 · Obligations calendar</div>
+    <h2>What is due, and when.</h2>
+    <p>Court, regulatory, operating and financing dates from public dockets and filings, in one list. Red dots are still ahead.</p>
+    <div class="filters"><select id="calKind"><option value="">All types</option></select><label class="note"><input type="checkbox" id="calFuture"> Upcoming only</label></div>
+    <ul class="timeline" id="calList"></ul>
+    <h3>Who regulates which segment</h3>
+    <table class="juris">
+      <tr><th>Segment</th><th>Route</th><th>Regulator today</th><th>Open items</th></tr>
+      <tr><td>Offshore SYU lines</td><td>Hondo, Harmony, Heritage to LFC</td><td>MMA (formerly BSEE), federal OCS</td><td>Hondo commissioning approval expected Oct 2026 (Sable)</td></tr>
+      <tr><td>CA-324 (former Line 901)</td><td>LFC to Gaviota Pump Station</td><td>PHMSA, per Aug 19, 2026 C.D. Cal. order replacing OSFM in the consent decree</td><td>Jurisdiction merits at 9th Cir.; Coastal Commission SB 237 notice (no hearing set as of Aug 10)</td></tr>
+      <tr><td>CA-325 (former Line 903)</td><td>Gaviota to Pentland via Sisquoc; crosses Gaviota State Park</td><td>PHMSA, same order</td><td>State Parks appeal of the Aug 19 order (filed Aug 21); jurisdiction merits at 9th Cir.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="guidance" class="fil">
+  <div class="wrap">
+    <div class="sec-label">11 · Guidance history</div>
+    <h2>Every operating target Sable has published, in order.</h2>
+    <p>Useful for anyone setting the next target: what was said, when, and what happened.</p>
+    <div class="tablewrap" style="max-height:460px"><table class="book" id="guideTable"><thead><tr><th>Date</th><th>Document</th><th>Claim</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<section id="live">
+  <div class="wrap">
+    <div class="sec-label">12 · Live channel conditions</div>
+    <h2>The morning-coffee page for the platforms.</h2>
+    <p>NOAA buoys in the Santa Barbara Channel, the NWS marine forecast for the channel, and earthquakes within 150 km of the unit. Refreshes every 10 minutes.</p>
+    <div class="live" id="liveCards"><div class="note">Loading live data…</div></div>
+    <div class="grid2" style="margin-top:22px">
+      <div class="card"><h3>Wind and seas, last 8 hours (buoy 46054, West Santa Barbara)</h3><div class="chartbox"><canvas id="buoyChart"></canvas></div></div>
+      <div class="card"><h3>Marine forecast, Santa Barbara Channel (PZZ673)</h3><div id="fcst" class="note"></div></div>
+    </div>
+    <p class="src" style="margin-top:8px">Sources: <a href="https://www.ndbc.noaa.gov/station_page.php?station=46054" target="_blank" rel="noopener">NOAA NDBC</a>, <a href="https://api.weather.gov/zones/forecast/PZZ673/forecast" target="_blank" rel="noopener">NWS</a>, <a href="https://earthquake.usgs.gov/earthquakes/feed/" target="_blank" rel="noopener">USGS</a>.</p>
+  </div>
+</section>
+
+<section id="sources">
+  <div class="wrap">
+    <div class="sec-label">13 · Sources and limits</div>
+    <h2>What is public, and what is not.</h2>
+    <ul class="plain">
+      <li><strong>Federal record:</strong> BSEE Pacific OGOR-A production by well (1996 to the latest month), BSEE Pacific borehole, platform, pipeline and lease-ownership files, BOEM Pacific GIS layers, EPA FRS facility points, EIA crude pipeline layer.</li>
+      <li><strong>Company record:</strong> Sable's 10-K, 10-Qs, 8-Ks and investor presentations on EDGAR. Company figures are labeled as company figures and never blended with federal data.</li>
+      <li><strong>Courts:</strong> the 9th Circuit docket (CourtListener RECAP) and orders described in Sable's 8-Ks.</li>
+      <li><strong>Lag:</strong> BSEE's latest month is labeled "Not 100% Complete" and runs about four months behind.</li>
+      <li><strong>Not public:</strong> SCADA, well tests, nominations detail, LFC throughput, inspection records. Those would plug straight into this room.</li>
+      <li><strong>Counts:</strong> Sable's June 2026 deck gives 112 wells (90 producers, 12 injectors, 10 idle). BSEE's monthly status for the latest month is shown as published. The two use different definitions.</li>
+      <li><strong>Approximate geometry:</strong> CA-324 and CA-325 onshore routes, and the Heritage-to-Harmony gas line. Labeled on the map.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap">
+    <h2>Use it, and tell me what would make it more useful.</h2>
+    <p style="margin:0 auto 6px">I'd like to help Sable however is most valuable: extending this room with internal data, building the trackers your team needs, or taking on whatever work is most useful. 15 minutes is enough to find out.</p>
+    <a class="btn" href="mailto:avinash753159@gmail.com?subject=SYU%20data%20room">Email me</a><a class="btn ghost" href="about/">About me</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Built by Avinash Nayak · Austin, TX · 832-380-5845 · avinash753159@gmail.com<br>Independent work from public records. Not affiliated with or endorsed by Sable Offshore Corp.</div>
+</footer>
+
+<script src="data.js"></script>
+<script src="filings.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function(){
+const D = window.SYU, F = window.FIL || null;
+const PC = {Hondo:'#7a5195', Harmony:'#1f77b4', Heritage:'#d97a00'};
+const GC = {producing:'#1a9850', injection:'#1f77b4', idle:'#9a9a9a'};
+const MIN_DAYS = 7;
+const fmt = n => n == null || isNaN(n) ? '' : Math.round(n).toLocaleString('en-US');
+const pct = x => x == null || isNaN(x) ? '' : Math.round(x * 100) + '%';
+const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const mlabel = m => { if(!m) return ''; const [y,mo] = m.split('-'); return MN[+mo-1]+' '+y; };
+const dim = m => { const [y,mo] = m.split('-').map(Number); return new Date(y, mo, 0).getDate(); };
+const addM = (m, k) => { let [y,mo] = m.split('-').map(Number); mo += k; y += Math.floor((mo-1)/12); mo = ((mo-1)%12+12)%12+1; return y+'-'+String(mo).padStart(2,'0'); };
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const link = (u, t) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t || 'source')}</a>` : '';
+const latest = D.latest_month;
+
+// ---------- per-well latest-month metrics
+const wells = D.wells;
+wells.forEach(w => {
+  const r = w.series.find(x => x[0] === latest) || [latest,0,0,0,0,0];
+  w.days = r[5] || 0;
+  w.act = r[1] / dim(latest);
+  w.pot = r[1] > 0 && w.days >= MIN_DAYS ? r[1] / w.days : w.act;
+  w.deferred = Math.max(0, w.pot - w.act);
+  w.wc = r[1] + r[3] > 0 ? r[3] / (r[1] + r[3]) : null;
+  const pre = w.series.filter(x => x[0] >= '2015-01' && x[0] <= '2015-04');
+  const po = pre.reduce((s, x) => s + x[1], 0), pw = pre.reduce((s, x) => s + x[3], 0);
+  w.pre_wc = po + pw > 0 ? pw / (po + pw) : null;
+});
+
+// ---------- platform ops (from completions): [month, oil, days, wells, potRaw, water, gas]
+const ops = {};
+['Harmony','Heritage','Hondo'].forEach(p => {
+  ops[p] = {};
+  (D.ops[p] || []).forEach(r => ops[p][r[0]] = r);
+});
+// potential with the MIN_DAYS rule, per platform-month, recomputed from well series (2012+)
+const potPM = {};
+wells.forEach(w => w.series.forEach(r => {
+  if (r[1] <= 0) return;
+  const k = w.platform + '|' + r[0];
+  const p = r[5] >= MIN_DAYS ? r[1] / r[5] : r[1] / dim(r[0]);
+  potPM[k] = (potPM[k] || 0) + p;
+}));
+const platMonth = (p, m) => {
+  const o = ops[p][m];
+  if (!o) return {oil: 0, act: 0, pot: 0, up: null, wells: 0, wat: 0, gas: 0};
+  return {oil: o[1], act: o[1] / dim(m), pot: potPM[p + '|' + m] ?? o[4], up: o[3] ? o[2] / (o[3] * dim(m)) : null, wells: o[3], wat: o[5], gas: o[6]};
+};
+
+const HH = ['Harmony','Heritage'];
+const LM = HH.map(p => platMonth(p, latest));
+const hhAct = LM[0].act + LM[1].act, hhPot = LM[0].pot + LM[1].pot;
+const latestUnit = D.unit[D.unit.length - 1];
+const unitBopd = latestUnit[1] / dim(latest);
+const unitWC = latestUnit[3] / (latestUnit[1] + latestUnit[3]);
+
+document.getElementById('asof').textContent =
+  `Federal data retrieved ${D.built}; latest federal production month ${mlabel(latest)} (BSEE: "Not 100% Complete").` +
+  (F ? ` Company filings read through ${F.as_of}.` : '');
+
+const g = k => wells.filter(w => w.group === k).length;
+const stats = [
+  [fmt(unitBopd), 'bopd actual, ' + mlabel(latest), 'BSEE'],
+  [fmt(hhPot), 'bopd potential at full uptime', 'same wells, same month'],
+  [fmt(hhPot - hhAct), 'bopd deferred', 'potential minus actual'],
+  [g('producing') + ' / ' + g('idle'), 'producing / idle completions', 'BSEE, ' + mlabel(latest)],
+  [pct(unitWC), 'unit water cut', 'BSEE, ' + mlabel(latest)],
+  ['~45K', 'bopd Oct 2026 exit (est.)', 'Sable 8-K, Sept 28'],
+];
+document.getElementById('stats').innerHTML = stats.map(s =>
+  `<div class="stat"><div class="v">${s[0]}</div><div class="l">${s[1]}</div><div class="s">${s[2]}</div></div>`).join('');
+
+// ---------- helpers
+function segToggle(id, fn){
+  document.querySelectorAll(`#${id} button`).forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} button`).forEach(x => x.classList.toggle('on', x === b));
+    fn(b.dataset.v);
+  }));
+}
+function chartOpts(yTitle, o = {}){
+  return {responsive: true, maintainAspectRatio: false, animation: false, interaction: {mode: 'index', intersect: false},
+    plugins: {legend: {labels: {font: {size: 12}, boxWidth: 12}},
+      tooltip: {callbacks: {label: c => `${c.dataset.label}: ${c.parsed.y == null ? '' : (o.pctY ? Math.round(c.parsed.y) + '%' : Math.round(c.parsed.y).toLocaleString('en-US'))}`}}},
+    scales: {x: {stacked: !!o.stacked, ticks: {maxTicksLimit: 12, font: {size: 11}}, grid: {display: false}},
+             y: {stacked: !!o.stacked, beginAtZero: true, max: o.max, title: {display: true, text: yTitle, font: {size: 11}}, ticks: {font: {size: 11}}}}};
+}
+const MONTHS_RESTART = []; for (let m = '2025-03'; m <= latest; m = addM(m, 1)) MONTHS_RESTART.push(m);
+
+// ---------- briefing
+const idleHH = wells.filter(w => w.group === 'idle' && w.platform !== 'Hondo');
+const idlePre = idleHH.reduce((s, w) => s + w.pre_rate, 0);
+const hondo = wells.filter(w => w.platform === 'Hondo').sort((a, b) => b.pre_rate - a.pre_rate);
+const hondoPre = hondo.reduce((s, w) => s + w.pre_rate, 0);
+const topDef = wells.filter(w => w.deferred > 0).sort((a, b) => b.deferred - a.deferred);
+const top5def = topDef.slice(0, 5).reduce((s, w) => s + w.deferred, 0);
+const prodSorted = wells.filter(w => w.act > 0).sort((a, b) => b.act - a.act);
+const top10 = prodSorted.slice(0, 10).reduce((s, w) => s + w.act, 0) / unitBopd;
+const gor14 = (() => { const r = D.unit.filter(x => x[0] >= '2014-01' && x[0] <= '2014-12'); return r.reduce((s, x) => s + x[2], 0) * 1000 / r.reduce((s, x) => s + x[1], 0); })();
+const pre15wc = (() => { const r = D.unit.find(x => x[0] === '2015-01'); return r[3] / (r[1] + r[3]); })();
+const cards = [
+  [fmt(hhPot - hhAct) + ' bopd', 'Deferred on Harmony and Heritage',
+   `In ${mlabel(latest)} the producing wells ran ${pct(LM[0].up)} of days on Harmony and ${pct(LM[1].up)} on Heritage. At full uptime they'd have made ${fmt(hhPot)} bopd, not ${fmt(hhAct)}. The five largest gaps hold ${fmt(top5def)} bopd.`,
+   'How much of the downtime is LFC capacity, sales constraints, or the wells themselves?', 'BSEE OGOR-A days on production', '#uptime'],
+  [pct(top10), 'of oil from ten wells',
+   `${prodSorted.slice(0, 3).map(w => w.name).join(', ')} lead the unit. A problem on any of the top ten moves the monthly number.`,
+   'Which top wells have spare surveillance or artificial-lift headroom?', 'BSEE OGOR-A', '#book'],
+  ['~' + fmt(idlePre) + ' bopd', 'in idle Harmony and Heritage wells',
+   `${idleHH.length} idle completions made that much before the 2015 shut-in. The idle-well board ranks them by pre-shut-in rate and water cut.`,
+   'Which of these are mechanically ready, and what would a reactivation cost against a ~$800K perf-add?', 'BSEE OGOR-A, Jan to Apr 2015', '#idle'],
+  ['~' + fmt(hondoPre) + ' bopd', 'Hondo before shut-in',
+   `${hondo.filter(w => w.pre_rate > 0).length} Hondo completions made that in Jan to Apr 2015. Sable plans perf-adds on 9 of 15 production wells before restart, at ~600 bopd each.`,
+   'Do the perf-add candidates line up with the wells that carried the platform?', 'BSEE; Sable 8-K Sept 28, 2026', '#hondo'],
+  [pct(unitWC), 'unit water cut',
+   `Down from ${pct(pre15wc)} in Jan 2015, after ten years shut in. Every barrel of oil now brings about ${(unitWC / (1 - unitWC)).toFixed(1)} barrels of water that Las Flores Canyon has to handle, and LFC handles ~80% of Harmony and Heritage capacity today.`,
+   'When does water handling, not oil, set the unit rate as Hondo comes back?', 'BSEE; Sable 8-K Sept 28, 2026', '#production'],
+  [fmt(latestUnit[2] * 1000 / latestUnit[1]) + ' scf/bbl', 'gas-oil ratio, down from ~' + fmt(gor14) + ' in 2014',
+   `The wells are making far less gas per barrel than before the shut-in. Sable has disclosed the same thing: the number of wells online is limited by compressors, because gas production is lower than expected. Sable's stated priority is perf-adds, workovers and ESP installations.`,
+   'Which wells are short of lift gas, and where would an ESP or more compression recover the most deferred barrels?', 'BSEE; Sable 8-K exhibit, July 2026', '#production'],
+];
+document.getElementById('briefCards').innerHTML = cards.map(c => `<div>
+  <div class="v">${c[0]}</div><div class="h">${c[1]}</div><div class="t">${c[2]}</div>
+  <div class="q"><b>Next question:</b> ${c[3]}</div><div class="s">${c[4]} · <a href="${c[5]}">See the data</a></div></div>`).join('');
+
+// ---------- uptime charts
+let upChart;
+function drawUp(which){
+  const ps = which === 'All' ? HH : [which];
+  const act = MONTHS_RESTART.map(m => ps.reduce((s, p) => s + platMonth(p, m).act, 0));
+  const pot = MONTHS_RESTART.map(m => ps.reduce((s, p) => s + platMonth(p, m).pot, 0));
+  if (upChart) upChart.destroy();
+  upChart = new Chart(document.getElementById('upChart'), {
+    data: {labels: MONTHS_RESTART.map(mlabel), datasets: [
+      {type: 'bar', label: 'Actual oil, bopd', data: act, backgroundColor: '#121212'},
+      {type: 'bar', label: 'Deferred (potential minus actual)', data: pot.map((p, i) => Math.max(0, p - act[i])), backgroundColor: '#e3120b'},
+    ]},
+    options: chartOpts('bopd', {stacked: true})
+  });
+}
+drawUp('All'); segToggle('upPlat', drawUp);
+
+const upMonths = ['2014-06','2014-12'].concat(MONTHS_RESTART.filter(m => m >= '2026-01'));
+new Chart(document.getElementById('uptChart'), {
+  type: 'bar',
+  data: {labels: upMonths.map(mlabel), datasets: HH.map(p => ({label: p, backgroundColor: PC[p], data: upMonths.map(m => { const u = platMonth(p, m).up; return u == null ? null : u * 100; })}))},
+  options: chartOpts('% of days', {max: 100, pctY: true})
+});
+
+document.getElementById('defTitle').textContent = `Where the deferred barrels sat, ${mlabel(latest)}`;
+const maxDef = topDef.length ? topDef[0].deferred : 1;
+document.getElementById('defRank').innerHTML = topDef.slice(0, 15).map(w =>
+  `<li data-api="${w.api}"><span class="nm">${esc(w.name)}</span><span class="pl">${esc(w.platform)} · ${w.days}d</span><span class="bar"><i style="width:${w.deferred / maxDef * 100}%"></i></span><span class="val">${fmt(w.deferred)} bopd</span></li>`).join('');
+
+// ---------- scenario model
+const hondoDecl = (() => {
+  const ms = Object.keys(ops.Hondo).filter(m => m >= '2011-01' && m <= '2015-02').sort();
+  const xs = ms.map((m, i) => i), ys = ms.map(m => Math.log(ops.Hondo[m][4]));
+  const n = xs.length, mx = xs.reduce((a, b) => a + b) / n, my = ys.reduce((a, b) => a + b) / n;
+  const s = xs.reduce((a, x, i) => a + (x - mx) * (ys[i] - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0);
+  return 1 - Math.exp(s * 12);
+})();
+document.getElementById('hondoDecl').textContent = pct(hondoDecl);
+const CTL = [
+  ['pot', 'Harmony + Heritage potential', Math.round(hhPot / 100) * 100, 20000, 50000, 500, 'bopd', `${mlabel(latest)} potential from BSEE`],
+  ['up', 'Uptime', Math.round(hhAct / hhPot * 100), 50, 100, 1, '%', `${mlabel(latest)} actual/potential`],
+  ['dec', 'Annual decline', 8, 0, 25, 1, '%/yr', 'Exxon held ~1%/yr with active well work, 2011 to 2015'],
+  ['adds', 'Harmony + Heritage adds since June', 0, 0, 30, 1, 'wells', 'perf-adds or reactivations'],
+  ['per', 'Uplift per add', 600, 100, 1500, 50, 'bopd', 'Sable estimate: ~600 bopd per perf-add'],
+  ['hstart', 'Hondo restart', 2, 0, 9, 1, 'month', 'months after Oct 2026'],
+  ['hbase', 'Hondo base rate', Math.round(hondoPre / 100) * 100, 0, 6000, 100, 'bopd', 'pre-shut-in Jan to Apr 2015'],
+  ['hadds', 'Hondo perf-adds', 9, 0, 15, 1, 'wells', 'Sable plan: 9 of 15 production wells'],
+  ['cap', 'Facility / sales cap', 60000, 30000, 80000, 1000, 'bopd', 'July 2026 buyer cap was 40K'],
+];
+const ctlEl = document.getElementById('ctl');
+ctlEl.innerHTML = CTL.map(c => `<label><span>${c[1]} <b id="v_${c[0]}"></b></span><input type="range" id="c_${c[0]}" min="${c[3]}" max="${c[4]}" step="${c[5]}" value="${c[2]}"><small>${c[7]}</small></label>`).join('') +
+  `<button class="seg" id="mReset" style="padding:6px 12px;font-family:var(--sans);font-size:12px;background:#fff;cursor:pointer">Reset to defaults</button>`;
+let mChart;
+function runModel(){
+  const v = {}; CTL.forEach(c => { v[c[0]] = +document.getElementById('c_' + c[0]).value; });
+  const showV = (k, t) => document.getElementById('v_' + k).textContent = t;
+  showV('pot', fmt(v.pot)); showV('up', v.up + '%'); showV('dec', v.dec + '%'); showV('adds', v.adds); showV('per', fmt(v.per));
+  showV('hstart', mlabel(addM('2026-10', v.hstart))); showV('hbase', fmt(v.hbase)); showV('hadds', v.hadds); showV('cap', fmt(v.cap));
+  const months = []; for (let m = addM(latest, 1); m <= '2027-12'; m = addM(m, 1)) months.push(m);
+  const k = Math.pow(1 - v.dec / 100, 1 / 12);
+  const hStart = addM('2026-10', v.hstart);
+  const rows = months.map((m, i) => {
+    const t = i + 1;
+    const hh = (v.pot + v.adds * v.per) * Math.pow(k, t) * v.up / 100;
+    let ho = 0;
+    if (m >= hStart) {
+      const j = months.indexOf(m) - months.indexOf(hStart);
+      const ramp = Math.min(1, (j + 1) / 3);
+      ho = (v.hbase + v.hadds * v.per) * ramp * Math.pow(k, j) * v.up / 100;
+    }
+    const tot = Math.min(v.cap, hh + ho);
+    return {m, hh: Math.min(hh, v.cap), ho: Math.max(0, tot - Math.min(hh, v.cap)), tot, raw: hh + ho};
+  });
+  const at = m => rows.find(r => r.m === m) || {tot: 0};
+  const avg27 = rows.filter(r => r.m >= '2027-01').reduce((s, r) => s + r.tot, 0) / 12;
+  const capped = rows.filter(r => r.raw > v.cap).length;
+  document.getElementById('mOut').innerHTML = [
+    [fmt(at('2026-10').tot), 'Oct 2026 bopd (Sable est. exit ~45K)'],
+    [fmt(at('2026-12').tot), 'Dec 2026 bopd'],
+    [fmt(avg27), '2027 average bopd'],
+  ].map(x => `<div><div class="v">${x[0]}</div><div class="l">${x[1]}</div></div>`).join('');
+  const gap45 = 45000 / (v.up / 100) - v.pot;
+  document.getElementById('mNote').innerHTML =
+    `Federal data stops at ${mlabel(latest)} and can't see work done since. At ${v.up}% uptime, Sable's ~45K October exit implies about ${fmt(Math.max(0, gap45))} bopd of potential added since then` +
+    (gap45 > 0 ? ` (about ${Math.ceil(gap45 / v.per)} adds at ${fmt(v.per)} bopd each, or the equivalent from uptime and LFC upgrades). Set the adds slider to test it. ` : '. ') +
+    (capped ? `The cap binds in ${capped} of ${rows.length} months. ` : '') +
+    `Hondo ramps linearly over three months from restart. Company estimates are Sable's; the arithmetic is mine.`;
+  const disc = {'2026-07': 32000, '2026-08': 32000, '2026-09': 34000, '2026-10': 45000};
+  if (mChart) mChart.destroy();
+  const o = chartOpts('bopd', {stacked: true});
+  mChart = new Chart(document.getElementById('mChart'), {
+    data: {labels: months.map(mlabel), datasets: [
+      {type: 'bar', label: 'Harmony + Heritage (model)', data: rows.map(r => r.hh), backgroundColor: '#1f77b4', stack: 's'},
+      {type: 'bar', label: 'Hondo (model)', data: rows.map(r => r.ho), backgroundColor: '#7a5195', stack: 's'},
+      {type: 'line', label: 'Sable disclosed (est.)', data: months.map(m => disc[m] ?? null), borderColor: '#e3120b', backgroundColor: '#e3120b', pointRadius: 5, pointStyle: 'rectRot', showLine: false, stack: 'd'},
+    ]},
+    options: o
+  });
+}
+CTL.forEach(c => document.getElementById('c_' + c[0]).addEventListener('input', runModel));
+document.getElementById('mReset').addEventListener('click', () => { CTL.forEach(c => document.getElementById('c_' + c[0]).value = c[2]); runModel(); });
+runModel();
+
+// ---------- map
+const map = L.map('map', {scrollWheelZoom: false}).setView([34.42, -120.15], 11);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {attribution: 'Tiles &copy; Esri, GEBCO, NOAA, NGS', maxZoom: 13}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}', {maxZoom: 13}).addTo(map);
+map.on('focus', () => map.scrollWheelZoom.enable());
+
+const leaseLayer = L.geoJSON(D.leases, {
+  style: {color: '#5a5a5a', weight: 1, fillColor: '#e3120b', fillOpacity: 0.04, dashArray: '3 3'},
+  onEachFeature: (f, l) => {
+    const p = f.properties;
+    const owners = (p.owners || []).map(o => `${esc(o.company)} ${o.pct}%`).join(', ');
+    const lw = wells.filter(w => w.lease === p.lease);
+    l.bindPopup(`<b>Lease OCS-${esc(p.lease)}</b><table>
+      <tr><td>Blocks</td><td>${esc(p.blocks)}</td></tr><tr><td>Status</td><td>${esc(p.status)}</td></tr>
+      <tr><td>Effective</td><td>${esc(p.effective)}</td></tr><tr><td>Royalty</td><td>${p.royalty ? (+p.royalty).toFixed(2) + '%' : ''}</td></tr>
+      <tr><td>Acres</td><td>${fmt(p.acres)}</td></tr><tr><td>Owner</td><td>${owners}</td></tr>
+      <tr><td>Completions</td><td>${lw.length} (${lw.filter(w => w.group === 'producing').length} producing, ${fmt(lw.reduce((s, w) => s + w.act, 0))} bopd)</td></tr></table>${link(p.source, 'BOEM lease layer')}`);
+  }
+}).addTo(map);
+
+const PROD_COLOR = {'Oil':'#121212', 'Gas':'#d97a00', 'Produced water':'#1f77b4'};
+let pipeMode = 'product';
+const pipeStyle = f => {
+  const p = f.properties;
+  if (pipeMode === 'regulator') {
+    if (p.kind === 'onshore') return {color: '#e3120b', weight: 5, opacity: .9, dashArray: p.seg === '324' ? null : '10 6'};
+    return {color: '#1f77b4', weight: 4, opacity: .85};
+  }
+  if (p.kind === 'onshore') return {color: '#121212', weight: 4, opacity: .8, dashArray: '10 6'};
+  return {color: PROD_COLOR[p.product] || '#555', weight: 3, opacity: p.status === 'Active' ? .9 : .45, dashArray: (p.quality || '').startsWith('APPROX') ? '4 6' : null};
+};
+const pipeLayer = L.geoJSON({type: 'FeatureCollection', features: D.pipes.features.filter(f => f.properties.kind !== 'facility')}, {
+  style: pipeStyle,
+  onEachFeature: (f, l) => {
+    const p = f.properties;
+    const rows = p.kind === 'onshore'
+      ? [['From', p.from], ['Via', p.via], ['To', p.to], ['Operator', p.operator], ['Regulator', p.regulator], ['Geometry', p.quality]]
+      : [['Product', p.product], ['Size', p.size_in ? p.size_in + ' in' : ''], ['Length', p.length_ft ? fmt(p.length_ft) + ' ft' : ''], ['Status', p.status], ['Operator', p.operator], ['Water depth', p.depth], ['Regulator', p.regulator], ['Geometry', p.quality]];
+    l.bindPopup(`<b>${esc(p.name)}</b><table>${rows.filter(r => r[1]).map(r => `<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>${link(p.source)}${p.geom_source ? ' · ' + link(p.geom_source, 'route geometry') : ''}`);
+  }
+}).addTo(map);
+L.geoJSON({type: 'FeatureCollection', features: D.pipes.features.filter(f => f.properties.kind === 'facility')}, {
+  pointToLayer: (f, ll) => L.circleMarker(ll, {radius: 8, color: '#121212', weight: 2, fillColor: '#fff', fillOpacity: 1}),
+  onEachFeature: (f, l) => {
+    const p = f.properties;
+    l.bindTooltip(p.name.split('(')[0].trim(), {permanent: true, direction: 'right'});
+    l.bindPopup(`<b>${esc(p.name)}</b><table><tr><td>Address</td><td>${esc(p.address)}</td></tr><tr><td>Location</td><td>${esc(p.quality)}</td></tr></table>${link(p.source, 'EPA FRS record')}`);
+  }
+}).addTo(map);
+
+let colorMode = 'status';
+const defColor = d => d >= 300 ? '#e3120b' : d >= 100 ? '#f4a259' : d > 0 ? '#f6d55c' : '#cfcfcf';
+const wellColor = w => colorMode === 'status' ? GC[w.group] || '#555' : colorMode === 'platform' ? PC[w.platform] : defColor(w.deferred);
+const wellLayer = L.layerGroup().addTo(map), stickLayer = L.layerGroup();
+function drawWells(){
+  wellLayer.clearLayers(); stickLayer.clearLayers();
+  wells.forEach(w => {
+    if (w.lat == null) return;
+    const c = wellColor(w);
+    const r = colorMode === 'deferred' ? Math.max(4, Math.min(11, 3 + Math.sqrt(w.deferred) / 3)) : 4.5;
+    const m = L.circleMarker([w.lat, w.lon], {radius: r, color: '#fff', weight: 1, fillColor: c, fillOpacity: .95});
+    m.bindPopup(() => wellPopup(w));
+    wellLayer.addLayer(m);
+    if (w.slat != null) stickLayer.addLayer(L.polyline([[w.slat, w.slon], [w.lat, w.lon]], {color: c, weight: 1, opacity: .6}));
+  });
+}
+function wellPopup(w){
+  return `<b>${esc(w.platform)} ${esc(w.name)}</b><table>
+    <tr><td>API</td><td>${esc(w.api)}</td></tr><tr><td>Status</td><td>${esc(w.status)}</td></tr>
+    <tr><td>Lease</td><td>OCS-${esc(w.lease)}</td></tr><tr><td>Spud</td><td>${esc(w.spud)}</td></tr>
+    <tr><td>MD / TVD</td><td>${fmt(w.md_ft)} / ${fmt(w.tvd_ft)} ft</td></tr>
+    <tr><td>${mlabel(latest)}</td><td>${fmt(w.act)} bopd actual, ${fmt(w.pot)} potential, ${w.days} days on</td></tr>
+    <tr><td>Water cut</td><td>${pct(w.wc)}</td></tr><tr><td>Pre-shut-in</td><td>${fmt(w.pre_rate)} bopd</td></tr>
+    <tr><td>Cum oil 1996+</td><td>${fmt(w.cum_oil)} bbl</td></tr></table>
+    <a href="#book" onclick="window.__selWell('${w.api}')">Open in well book</a> · ${link(D.prod_source, 'BSEE OGOR')}`;
+}
+drawWells();
+
+D.platforms.forEach(p => {
+  const m = L.marker([p.lat, p.lon], {icon: L.divIcon({className: '', html: `<div style="width:18px;height:18px;background:${PC[p.name]};border:2px solid #fff;outline:2px solid #121212;transform:rotate(45deg)"></div>`, iconSize: [18, 18], iconAnchor: [9, 9]})});
+  m.bindTooltip(`Platform ${p.name}`, {permanent: true, direction: 'top', offset: [0, -12]});
+  const n = wells.filter(w => w.platform === p.name), pm = platMonth(p.name, latest);
+  m.bindPopup(`<b>Platform ${esc(p.name)}</b><table>
+    <tr><td>Installed</td><td>${esc(p.install_date)}</td></tr><tr><td>Water depth</td><td>${fmt(p.water_depth_ft)} ft</td></tr>
+    <tr><td>Lease / block</td><td>OCS-${esc(p.lease)} / ${esc(p.area_block)}</td></tr>
+    <tr><td>Slots</td><td>${fmt(p.slots_drilled)} drilled of ${fmt(p.slot_count)}</td></tr>
+    <tr><td>To shore</td><td>${esc(p.distance_to_shore_mi)} mi</td></tr>
+    <tr><td>Completions</td><td>${n.length}: ${n.filter(w => w.group === 'producing').length} producing, ${n.filter(w => w.group === 'injection').length} inj., ${n.filter(w => w.group === 'idle').length} idle</td></tr>
+    <tr><td>${mlabel(latest)}</td><td>${fmt(pm.act)} bopd actual, ${fmt(pm.pot)} potential${pm.up != null ? ', uptime ' + pct(pm.up) : ''}</td></tr></table>
+    ${(p.sources || []).slice(0, 2).map((u, i) => link(u, i ? 'BSEE platform file' : 'BOEM GIS')).join(' · ')}`);
+  m.addTo(map);
+});
+
+const liveLayer = L.layerGroup().addTo(map);
+const bounds = L.latLngBounds([]); leaseLayer.eachLayer(l => bounds.extend(l.getBounds())); map.fitBounds(bounds.pad(0.3));
+
+function legend(){
+  const wl = colorMode === 'status' ? Object.entries(GC).map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)}</span>`)
+    : colorMode === 'platform' ? Object.entries(PC).map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k}</span>`)
+    : [['300+', '#e3120b'], ['100 to 300', '#f4a259'], ['under 100', '#f6d55c'], ['none', '#cfcfcf']].map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k} bopd deferred</span>`);
+  const pl = pipeMode === 'regulator'
+    ? ['<span><i class="ln" style="border-color:#1f77b4"></i>MMA (federal OCS)</span>', '<span><i class="ln" style="border-color:#e3120b"></i>PHMSA (CA-324 solid, CA-325 dashed)</span>']
+    : Object.entries(PROD_COLOR).map(([k, c]) => `<span><i class="ln" style="border-color:${c}"></i>${k}</span>`).concat(['<span><i class="ln" style="border-color:#121212;border-top-style:dashed"></i>Onshore crude (approx.)</span>']);
+  document.getElementById('legend').innerHTML = wl.concat(pl, ['<span><i class="sw" style="background:#fff;border:2px solid #0b6e99"></i>NOAA buoy</span>', '<span><i class="sw" style="background:#7b3294"></i>Earthquake, 30 days</span>']).join('');
+}
+legend();
+segToggle('colorBy', v => { colorMode = v; drawWells(); legend(); });
+segToggle('pipeBy', v => { pipeMode = v; pipeLayer.setStyle(pipeStyle); legend(); });
+const tog = (id, layer) => document.getElementById(id).addEventListener('change', e => e.target.checked ? layer.addTo(map) : map.removeLayer(layer));
+tog('tgLeases', leaseLayer); tog('tgWells', wellLayer); tog('tgSticks', stickLayer); tog('tgPipes', pipeLayer); tog('tgLive', liveLayer);
+
+// ---------- well book
+let sortKey = 'act', sortDir = -1, selected = null;
+const tbody = document.querySelector('#bookTable tbody');
+const fPlat = document.getElementById('fPlat'), fGroup = document.getElementById('fGroup'), fText = document.getElementById('fText');
+function renderBook(){
+  const fp = fPlat.value, fg = fGroup.value, ft = fText.value.trim().toLowerCase();
+  const key = sortKey === 'last_rate' ? 'act' : sortKey;
+  const rows = wells.filter(w => (!fp || w.platform === fp) && (!fg || w.group === fg) && (!ft || w.name.toLowerCase().includes(ft) || w.api.includes(ft)))
+    .sort((a, b) => { const x = a[key] ?? -1, y = b[key] ?? -1; return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
+  document.getElementById('fCount').textContent = `${rows.length} completions`;
+  tbody.innerHTML = rows.map(w => `<tr data-api="${w.api}" class="${w.api === selected ? 'sel' : ''}">
+    <td><b>${esc(w.name)}</b></td><td>${esc(w.platform)}</td><td><span class="pill p-${w.group}">${w.group}</span></td>
+    <td class="n">${fmt(w.act)}</td><td class="n">${fmt(w.pot)}</td><td class="n">${w.days || ''}</td><td class="n">${pct(w.wc)}</td>
+    <td class="n">${fmt(w.pre_rate)}</td><td>${mlabel(w.last_prod_month)}</td><td class="n">${fmt(w.cum_oil)}</td><td>${esc(w.lease)}</td><td>${esc(w.api)}</td></tr>`).join('');
+}
+[fPlat, fGroup, fText].forEach(el => el.addEventListener('input', renderBook));
+document.querySelectorAll('#bookTable th').forEach(th => th.addEventListener('click', () => {
+  const k = th.dataset.k === 'last_rate' ? 'act' : th.dataset.k;
+  sortDir = sortKey === k ? -sortDir : (th.classList.contains('n') ? -1 : 1); sortKey = k; renderBook();
+}));
+document.querySelector('#bookTable th[data-k="last_rate"]').dataset.k = 'act';
+tbody.addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) selectWell(tr.dataset.api); });
+let wellChart;
+function selectWell(api){
+  const w = wells.find(x => x.api === api); if (!w) return;
+  selected = api; renderBook();
+  try { history.replaceState(null, '', '#well=' + api); } catch (e) {}
+  const s = w.series;
+  document.getElementById('detail').innerHTML = `<h4>${esc(w.platform)} ${esc(w.name)} · ${esc(w.status)} <a class="note" href="#well=${esc(w.api)}" id="wellLink" style="font-weight:400;margin-left:8px">Copy link to this well</a></h4>
+    <div class="note">API ${esc(w.api)} · Lease OCS-${esc(w.lease)} · Spud ${esc(w.spud)} · MD ${fmt(w.md_ft)} ft · ${mlabel(latest)}: ${fmt(w.act)} bopd actual, ${fmt(w.pot)} potential, ${w.days} days on, ${pct(w.wc)} water${w.best ? ` · best two months since restart ${fmt(w.best)} bopd potential (${bestLbl(w)})` : ''} · pre-shut-in ${fmt(w.pre_rate)} bopd at ${pct(w.pre_wc)} water · cum oil since 1996 ${fmt(w.cum_oil)} bbl</div>
+    <div class="chartbox"><canvas id="wellChart"></canvas></div>`;
+  if (wellChart) wellChart.destroy();
+  const o = chartOpts('per calendar day');
+  o.scales.y2 = {position: 'right', beginAtZero: true, max: 31, title: {display: true, text: 'days on', font: {size: 11}}, grid: {display: false}, ticks: {font: {size: 11}}};
+  wellChart = new Chart(document.getElementById('wellChart'), {
+    data: {labels: s.map(r => r[0]), datasets: [
+      {type: 'line', label: 'Oil, bopd', data: s.map(r => r[1] / dim(r[0])), borderColor: '#121212', pointRadius: 0, borderWidth: 1.6},
+      {type: 'line', label: 'Water, bwpd', data: s.map(r => r[3] / dim(r[0])), borderColor: '#1f77b4', pointRadius: 0, borderWidth: 1.2},
+      {type: 'line', label: 'Gas, mcf/d', data: s.map(r => r[2] / dim(r[0])), borderColor: '#d97a00', pointRadius: 0, borderWidth: 1.2, hidden: true},
+      {type: 'bar', label: 'Days on', data: s.map(r => r[5] || null), backgroundColor: 'rgba(227,18,11,.18)', yAxisID: 'y2'},
+    ]},
+    options: o
+  });
+  document.getElementById('wellLink').addEventListener('click', e => {
+    e.preventDefault();
+    const u = location.origin + location.pathname + '#well=' + w.api;
+    (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => e.target.textContent = 'Link copied', () => prompt('Link to this well:', u));
+  });
+}
+window.__selWell = api => setTimeout(() => selectWell(api), 50);
+document.querySelectorAll('ol.rank').forEach(ol => ol.addEventListener('click', e => {
+  const li = e.target.closest('li'); if (!li) return;
+  selectWell(li.dataset.api); document.getElementById('book').scrollIntoView({behavior: 'smooth'});
+}));
+
+// ---------- Hondo board
+document.getElementById('hondoCallout').innerHTML =
+  `<b>Sable's plan (8-K, Sept 28, 2026):</b> perf-adds on 9 of Hondo's 15 production wells before restart, each estimated at ~600 bopd incremental for ~$800K. Restart expected in Q4 2026, after MMA approval of the commissioning submission (expected in October).<br>
+   <b>Public record:</b> ${hondo.filter(w => w.pre_rate > 0).length} Hondo completions made ~${fmt(hondoPre)} bopd combined in Jan to Apr 2015. BSEE reports ${hondo.length} completions today: ${hondo.filter(w => w.group === 'idle').length} idle and ${hondo.filter(w => w.group === 'injection').length} injection. On Sable's numbers, 9 perf-adds would add ~5,400 bopd on top of base rates.`;
+const maxH = hondo[0].pre_rate || 1;
+document.getElementById('hondoRank').innerHTML = hondo.filter(w => w.group !== 'injection').map(w =>
+  `<li data-api="${w.api}"><span class="nm">${esc(w.name)}</span><span class="pl">${w.pre_wc != null ? pct(w.pre_wc) + ' water' : ''}</span><span class="bar"><i style="width:${w.pre_rate / maxH * 100}%"></i></span><span class="val">${w.pre_rate ? fmt(w.pre_rate) + ' bopd' : 'last oil ' + (w.last_prod_month ? w.last_prod_month.slice(0, 4) : 'n/a')}</span></li>`).join('');
+const hm = Object.keys(ops.Hondo).filter(m => m >= '2011-01' && m <= '2015-05').sort();
+new Chart(document.getElementById('hondoChart'), {
+  data: {labels: hm.map(mlabel), datasets: [
+    {type: 'bar', label: 'Hondo oil, bopd', data: hm.map(m => ops.Hondo[m][1] / dim(m)), backgroundColor: '#7a5195'},
+    {type: 'line', label: 'Water cut %', data: hm.map(m => { const o = ops.Hondo[m]; return o[1] + o[5] ? o[5] / (o[1] + o[5]) * 100 : null; }), borderColor: '#1f77b4', pointRadius: 0, yAxisID: 'y2'},
+  ]},
+  options: (() => { const o = chartOpts('bopd'); o.scales.y2 = {position: 'right', min: 0, max: 100, grid: {display: false}, title: {display: true, text: '% water', font: {size: 11}}}; return o; })()
+});
+
+// ---------- idle board
+const idle = idleHH.slice().sort((a, b) => b.pre_rate - a.pre_rate);
+const maxI = idle.length ? Math.max(1, idle[0].pre_rate) : 1;
+document.getElementById('idleRank').innerHTML = idle.map(w =>
+  `<li data-api="${w.api}"><span class="nm">${esc(w.name)}</span><span class="pl">${esc(w.platform)}</span><span class="pl">${w.pre_wc != null ? pct(w.pre_wc) + ' water' : ''}</span><span class="bar"><i style="width:${w.pre_rate / maxI * 100}%"></i></span><span class="val">${w.pre_rate ? fmt(w.pre_rate) + ' bopd' : 'last oil ' + (w.last_prod_month ? w.last_prod_month.slice(0, 4) : 'n/a')}</span></li>`).join('');
+
+// ---------- well-work screen
+document.querySelectorAll('.latestLbl').forEach(el => el.textContent = mlabel(latest));
+// best = highest two-month average potential since 2025, excluding the latest month, so one flush month can't set the bar
+const potOf = r => r[1] <= 0 ? 0 : r[5] >= MIN_DAYS ? r[1] / r[5] : r[1] / dim(r[0]);
+wells.forEach(w => {
+  let best = 0, bestM = null;
+  const s = w.series.filter(r => r[0] >= '2025-01' && r[0] < latest);
+  for (let i = 1; i < s.length; i++) {
+    if (addM(s[i - 1][0], 1) !== s[i][0]) continue;
+    const p = (potOf(s[i - 1]) + potOf(s[i])) / 2;
+    if (p > best) { best = p; bestM = s[i][0]; }
+  }
+  w.best = best; w.best_m = bestM;
+  w.slip = Math.max(0, best - w.pot);
+  w.gap15 = Math.max(0, (w.pre_rate || 0) - Math.max(best, w.pot));
+});
+const wwPool = wells.filter(w => w.platform !== 'Hondo' && w.group !== 'injection');
+const LENS = {
+  slip: {rows: () => wwPool.filter(w => w.best >= 50 && w.slip >= 25).sort((a, b) => b.slip - a.slip), stake: w => w.slip,
+         label: 'slipping since restart'},
+  gap:  {rows: () => wwPool.filter(w => w.group === 'producing' && w.gap15 >= 25).sort((a, b) => b.gap15 - a.gap15), stake: w => w.gap15,
+         label: 'producing below their 2015 rate'},
+  idle: {rows: () => wwPool.filter(w => w.group === 'idle' && w.pre_rate > 0).sort((a, b) => b.pre_rate - a.pre_rate), stake: w => Math.max(w.best, w.pre_rate),
+         label: 'idle with a pre-shut-in rate'},
+};
+const signal = w => {
+  const s = [];
+  if (w.best >= 50 && w.days === 0) s.push(`no oil in ${mlabel(latest)} after ${fmt(w.best)} bopd in ${bestLbl(w)}`);
+  else if (w.best >= 50 && w.slip >= 25) s.push(`down ${pct(w.slip / w.best)} from ${bestLbl(w)}`);
+  if (w.days > 0 && w.days < dim(latest) - 3) s.push(`${w.days} of ${dim(latest)} days on`);
+  if (w.wc != null && w.pre_wc != null && w.wc - w.pre_wc >= 0.15) s.push(`water up ${Math.round((w.wc - w.pre_wc) * 100)} pts vs 2015`);
+  if (w.group === 'idle') s.push(`idle; last oil ${w.last_prod_month ? mlabel(w.last_prod_month) : 'n/a'}`);
+  return s.join('; ');
+};
+const bestLbl = w => w.best_m ? MN[+addM(w.best_m, -1).slice(5) - 1] + '–' + mlabel(w.best_m) : '';
+let wwLens = 'slip', wwCur = [];
+const wwNet = document.getElementById('wwNet'), wwCost = document.getElementById('wwCost');
+function renderWW(){
+  const L0 = LENS[wwLens], net = +wwNet.value || 0, cost = (+wwCost.value || 0) * 1000;
+  wwCur = L0.rows().map(w => { const st = L0.stake(w); return {w, st, usd: st * net, pb: st * net > 0 ? cost / (st * net) : null}; });
+  document.querySelector('#wwTable tbody').innerHTML = wwCur.map(({w, st, usd, pb}) => `<tr data-api="${w.api}">
+    <td><b>${esc(w.name)}</b></td><td>${esc(w.platform)}</td><td><span class="pill p-${w.group}">${w.group}</span></td>
+    <td class="n">${fmt(w.pre_rate)}</td><td class="n">${w.best ? fmt(w.best) + ' <span class="note">' + bestLbl(w) + '</span>' : ''}</td>
+    <td class="n">${fmt(w.pot)}</td><td class="n">${w.days || ''}</td><td class="n">${pct(w.pre_wc) || '–'} → ${pct(w.wc) || '–'}</td>
+    <td class="n"><b>${fmt(st)}</b></td><td class="n">$${fmt(usd)}</td><td class="n">${pb == null ? '' : fmt(pb)}</td><td style="white-space:normal;min-width:220px">${esc(signal(w))}</td></tr>`).join('');
+  const tot = wwCur.reduce((s, r) => s + r.st, 0), t10 = wwCur.slice(0, 10).reduce((s, r) => s + r.st, 0);
+  const lead = wwCur.slice(0, 3).map(({w, st}) => wwLens === 'slip' ? `${esc(w.name)} (${fmt(w.best)} → ${fmt(w.pot)})` : `${esc(w.name)} (${fmt(st)})`).join(', ');
+  const why = {slip: 'Some of this is normal decline after a well comes back; the list shows where to look first.',
+    gap: 'Ten years shut in changes a reservoir, so the 2015 rate is a reference point, not a promise.',
+    idle: 'At-stake uses the higher of the 2015 rate and the best two months since restart.'}[wwLens];
+  document.getElementById('wwCallout').innerHTML =
+    `<b>${wwCur.length} wells ${L0.label}, ${fmt(tot)} bopd at stake</b> (top ten: ${fmt(t10)} bopd, about $${fmt(t10 * net / 1000)}K a day at $${net}/bbl). ` +
+    `${lead ? 'Leading: ' + lead + '. ' : ''}${why}<br>At Sable's own numbers, a $${fmt(cost / 1000)}K job that restores 600 bopd pays back in about ${fmt(cost / (600 * net || 1))} days.`;
+}
+segToggle('wwLens', v => { wwLens = v; renderWW(); });
+[wwNet, wwCost].forEach(el => el.addEventListener('input', renderWW));
+document.querySelector('#wwTable tbody').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) { selectWell(tr.dataset.api); document.getElementById('book').scrollIntoView({behavior: 'smooth'}); } });
+renderWW();
+
+// ---------- CSV export
+function downloadCSV(name, head, rows){
+  const q = v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const blob = new Blob([[head].concat(rows).map(r => r.map(q).join(',')).join('\n')], {type: 'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+const r0 = v => v == null || isNaN(v) ? '' : Math.round(v);
+const r2 = v => v == null || isNaN(v) ? '' : Math.round(v * 100) / 100;
+document.getElementById('wwCsv').addEventListener('click', () => downloadCSV(`syu_well_work_${wwLens}_${latest}.csv`,
+  ['well', 'platform', 'api', 'status', 'pre_shut_in_bopd_2015', 'best_2mo_restart_potential_bopd', 'best_2mo_window', 'latest_potential_bopd', 'latest_days_on', 'water_cut_2015', 'water_cut_latest', 'at_stake_bopd', 'usd_per_day', 'payback_days', 'signal'],
+  wwCur.map(({w, st, usd, pb}) => [w.name, w.platform, w.api, w.group, r0(w.pre_rate), r0(w.best), bestLbl(w), r0(w.pot), w.days, r2(w.pre_wc), r2(w.wc), r0(st), r0(usd), r0(pb), signal(w)])));
+document.getElementById('bookCsv').addEventListener('click', () => downloadCSV(`syu_well_book_${latest}.csv`,
+  ['well', 'platform', 'api', 'lease', 'status', 'actual_bopd', 'potential_bopd', 'days_on', 'water_cut', 'pre_shut_in_bopd_2015', 'best_2mo_restart_potential_bopd', 'last_oil_month', 'cum_oil_bbl_1996', 'spud', 'md_ft', 'tvd_ft', 'lat', 'lon'],
+  wells.map(w => [w.name, w.platform, w.api, w.lease, w.group, r0(w.act), r0(w.pot), w.days, r2(w.wc), r0(w.pre_rate), r0(w.best), w.last_prod_month, w.cum_oil, w.spud, w.md_ft, w.tvd_ft, w.lat, w.lon])));
+
+// ---------- production room
+const months = D.unit.map(r => r[0]);
+const platSeries = n => { const m = Object.fromEntries(D.by_platform[n].map(r => [r[0], r])); return months.map(mm => m[mm] || [mm, 0, 0, 0]); };
+const DISCLOSED = {'2026-07': 32000, '2026-08': 32000, '2026-09': 34000, '2026-10': 45000};
+let prodChart;
+function drawProd(from){
+  const extra = Object.keys(DISCLOSED).filter(m => !months.includes(m));
+  const labels = months.filter(m => m >= from).concat(extra);
+  const ds = ['Harmony','Heritage','Hondo'].map(n => {
+    const s = Object.fromEntries(platSeries(n).map(r => [r[0], r[1] / dim(r[0])]));
+    return {type: 'bar', label: n + ' (BSEE)', data: labels.map(m => s[m] ?? null), backgroundColor: PC[n], stack: 'b'};
+  });
+  ds.push({type: 'line', label: 'Sable disclosed (est.)', data: labels.map(m => DISCLOSED[m] ?? null), borderColor: '#e3120b', backgroundColor: '#e3120b', pointRadius: 5, pointStyle: 'rectRot', borderDash: [4, 4], spanGaps: true, stack: 'd'});
+  if (prodChart) prodChart.destroy();
+  prodChart = new Chart(document.getElementById('prodChart'), {data: {labels: labels.map(mlabel), datasets: ds}, options: chartOpts('bopd', {stacked: true})});
+}
+drawProd('2025-01'); segToggle('prodRange', drawProd);
+const lm = months.filter(m => m >= '2011-01');
+const ratioChart = (id, fn, title, o) => new Chart(document.getElementById(id), {
+  type: 'line',
+  data: {labels: lm.map(mlabel), datasets: ['Harmony','Heritage','Hondo'].map(n => ({label: n, borderColor: PC[n], pointRadius: 0, borderWidth: 1.5,
+    data: platSeries(n).filter(r => r[0] >= '2011-01').map(fn)}))},
+  options: chartOpts(title, o)
+});
+ratioChart('wcChart', r => (r[1] + r[3]) > 0 ? r[3] / (r[1] + r[3]) * 100 : null, '% water', {max: 100, pctY: true});
+ratioChart('gorChart', r => r[1] > 500 ? r[2] * 1000 / r[1] : null, 'scf/bbl', {});
+
+// ---------- filings-driven sections
+const kindOf = s => /court|cir\.|brief|appeal|docket|order/i.test(s) ? 'Court' : /loan|note|debt|borrowing|rbl|matur|covenant|interest/i.test(s) ? 'Financing' : /earn|10-q|10-k|report/i.test(s) ? 'Reporting' : /phmsa|mma|bsee|coastal|permit|osfm|county|state|parks|cal fire|approval|consent/i.test(s) ? 'Regulatory' : 'Operations';
+const COURT = [
+  ['2025-12-24', 'EDC petition filed at the 9th Circuit (No. 25-8059). Sable and Pacific Pipeline Co. intervene.', 'https://www.courtlistener.com/docket/72224129/environmental-defense-center-et-al-v-pipeline-and-hazardous-materials/'],
+  ['2026-08-19', 'C.D. Cal. order substitutes PHMSA for OSFM in the 2020 consent decree; $1.449M penalty, no shutdown.', 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000108/socc-20260819.htm'],
+  ['2026-08-21', 'State Parks appeals the Aug 19 order.', 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000108/socc-20260819.htm'],
+  ['2026-09-22', 'New EDC petition, No. 26-6190, against DOT/PHMSA and DOI/FWS.', 'https://www.courtlistener.com/docket/72224129/environmental-defense-center-et-al-v-pipeline-and-hazardous-materials/'],
+  ['2026-10-06', '9th Cir. order: jurisdiction issue bifurcated; 25-8059, 26-508, 26-4629 and 26-6190 consolidated.', 'https://www.courtlistener.com/docket/72224129/environmental-defense-center-et-al-v-pipeline-and-hazardous-materials/'],
+  ['2026-11-09', '9th Cir.: California and environmental petitioners\' opening briefs due.', 'https://www.courtlistener.com/docket/72224129/environmental-defense-center-et-al-v-pipeline-and-hazardous-materials/'],
+  ['2026-12-18', '9th Cir.: answering briefs due from the United States and Sable.', 'https://www.courtlistener.com/docket/72224129/environmental-defense-center-et-al-v-pipeline-and-hazardous-materials/'],
+  ['2027-01-20', '9th Cir.: reply briefs due. A merits ruling is unlikely before 2027.', 'https://www.courtlistener.com/docket/72224129/environmental-defense-center-et-al-v-pipeline-and-hazardous-materials/'],
+].map(c => ({date: c[0], item: c[1], source_url: c[2], kind: 'Court'}));
+const calItems = COURT.concat((F && F.calendar || []).map(c => ({date: c.date, label: c.label, item: c.item, source_url: c.source_url, quote: c.quote, kind: c.kind || kindOf(c.item)})))
+  .filter(c => /^\d{4}-\d{2}(-\d{2})?$/.test(c.date || ''))
+  .sort((a, b) => a.date.localeCompare(b.date));
+const seenCal = new Set(); const cal = calItems.filter(c => { const k = c.date + c.item.slice(0, 40); if (seenCal.has(k)) return false; seenCal.add(k); return true; });
+const today = new Date().toISOString().slice(0, 10);
+const kinds = [...new Set(cal.map(c => c.kind))].sort();
+document.getElementById('calKind').innerHTML += kinds.map(k => `<option>${k}</option>`).join('');
+function renderCal(){
+  const k = document.getElementById('calKind').value, fut = document.getElementById('calFuture').checked;
+  document.getElementById('calList').innerHTML = cal.filter(c => (!k || c.kind === k) && (!fut || c.date >= today)).map(c => {
+    const d = c.label || (c.date.endsWith('-28') && /expected|month-end/.test(c.item) ? mlabel(c.date.slice(0, 7)) : new Date(c.date + 'T12:00:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}));
+    return `<li class="${c.date >= today ? 'next' : ''}"><span class="d">${d}<span class="k">${esc(c.kind)}</span></span><span class="x">${esc(c.item)}</span> <span class="src">${link(c.source_url)}</span></li>`;
+  }).join('');
+}
+['calKind', 'calFuture'].forEach(id => document.getElementById(id).addEventListener('input', renderCal));
+renderCal();
+
+if (F) {
+  const blocks = [
+    ['reserves', 'Reserves'], ['development', 'Development plan'], ['facilities', 'Facilities and marketing'],
+    ['costs', 'Costs'], ['hedges', 'Hedges'], ['debt', 'Debt and liquidity'],
+    ['priorities', "Management's stated priorities"], ['problems', 'Operating problems Sable has disclosed'],
+  ];
+  document.getElementById('filBlocks').innerHTML = blocks.filter(([k]) => (F[k] || []).length).map(([k, t], i) => `<details ${i < 2 ? 'open' : ''}><summary><h3 style="display:inline">${t}</h3> <span class="note">${F[k].length} items</span></summary>
+    <table class="juris"><tr><th style="width:26%">Item</th><th style="width:22%">Value</th><th>From the filing</th></tr>
+    ${F[k].map(r => `<tr><td>${esc(r.item)}</td><td><b>${esc(r.value)}</b></td><td class="q">${r.quote ? '"' + esc(r.quote.length > 320 ? r.quote.slice(0, 317) + '…' : r.quote) + '"' : ''} <span class="src">${link(r.url, (r.doc || 'source') + (r.doc_date ? ', ' + r.doc_date : ''))}${r.inferred ? ' (inferred)' : ''}</span></td></tr>`).join('')}</table></details>`).join('');
+  const gt = document.querySelector('#guideTable tbody');
+  gt.innerHTML = (F.guidance_history || []).slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map(r =>
+    `<tr style="cursor:default"><td>${esc(r.date)}</td><td>${link(r.url, r.doc || 'filing')}</td><td style="white-space:normal">${esc(r.claim)}${r.quote ? `<div class="note" style="font-style:italic;margin-top:3px">"${esc(r.quote.length > 260 ? r.quote.slice(0, 257) + '…' : r.quote)}"</div>` : ''}</td></tr>`).join('');
+} else {
+  document.querySelectorAll('.fil').forEach(el => el.classList.add('hide'));
+}
+
+// ---------- live channel
+const BUOYS = [['46054', 'West Santa Barbara', 34.265, -120.477], ['46053', 'East Santa Barbara', 34.241, -119.839]];
+const ms2kt = v => v == null ? null : v * 1.94384, m2ft = v => v == null ? null : v * 3.28084;
+const cardinal = d => d == null ? '' : ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(d / 22.5) % 16];
+let buoyChart;
+async function loadLive(){
+  const cardsHtml = [];
+  for (const [id, name, lat, lon] of BUOYS) {
+    try {
+      const b = await (await fetch('/api/buoy/' + id)).json();
+      if (b.error) throw new Error(b.error);
+      const age = Math.round((Date.now() - new Date(b.time)) / 60000);
+      cardsHtml.push(`<div><div class="l">NOAA buoy ${id}, ${name}</div><div class="v">${b.wave_m != null ? m2ft(b.wave_m).toFixed(1) + ' ft seas' : 'seas n/a'}</div>
+        <div>Wind ${cardinal(b.wind_dir_deg)} ${fmt(ms2kt(b.wind_ms))} kt, gusts ${fmt(ms2kt(b.gust_ms))} kt · swell ${b.dom_period_s ?? '–'} s from ${cardinal(b.wave_dir_deg)} · water ${b.water_c ?? '–'}°C</div><div class="l">${age} min ago</div></div>`);
+      L.circleMarker([lat, lon], {radius: 9, color: '#0b6e99', weight: 3, fillColor: '#fff', fillOpacity: 1})
+        .bindPopup(`<b>NOAA buoy ${id}</b><br>${name}<br>Seas ${b.wave_m != null ? m2ft(b.wave_m).toFixed(1) + ' ft' : 'n/a'}, wind ${fmt(ms2kt(b.wind_ms))} kt ${cardinal(b.wind_dir_deg)}<br>${link('https://www.ndbc.noaa.gov/station_page.php?station=' + id, 'NDBC station page')}`)
+        .addTo(liveLayer);
+      if (id === '46054') {
+        const h = b.history.slice().reverse();
+        if (buoyChart) buoyChart.destroy();
+        const o = chartOpts('wind, kt'); o.scales.y2 = {position: 'right', beginAtZero: true, grid: {display: false}, title: {display: true, text: 'seas, ft', font: {size: 11}}};
+        buoyChart = new Chart(document.getElementById('buoyChart'), {data: {labels: h.map(r => new Date(r[0]).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles'})), datasets: [
+          {type: 'line', label: 'Wind, kt', data: h.map(r => ms2kt(r[1])), borderColor: '#121212', pointRadius: 0, spanGaps: true},
+          {type: 'line', label: 'Seas, ft', data: h.map(r => m2ft(r[2])), borderColor: '#1f77b4', pointRadius: 0, spanGaps: true, yAxisID: 'y2'},
+        ]}, options: o});
+      }
+    } catch (e) { cardsHtml.push(`<div><div class="l">NOAA buoy ${id}, ${name}</div><div>Live feed unavailable here. ${link('https://www.ndbc.noaa.gov/station_page.php?station=' + id, 'Open the NDBC station page')}</div></div>`); }
+  }
+  try {
+    const start = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+    const q = await (await fetch(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&latitude=34.39&longitude=-120.12&maxradiuskm=150&starttime=${start}&minmagnitude=1.5&orderby=magnitude`)).json();
+    const f = q.features || [];
+    f.forEach(e => {
+      const [lon, lat, dep] = e.geometry.coordinates;
+      L.circleMarker([lat, lon], {radius: 3 + e.properties.mag * 2, color: '#fff', weight: 1, fillColor: '#7b3294', fillOpacity: .8})
+        .bindPopup(`<b>M${e.properties.mag.toFixed(1)}</b> ${esc(e.properties.place)}<br>${new Date(e.properties.time).toLocaleString('en-US')}<br>Depth ${dep.toFixed(1)} km<br>${link(e.properties.url, 'USGS event')}`).addTo(liveLayer);
+    });
+    const big = f[0];
+    cardsHtml.push(`<div><div class="l">Earthquakes within 150 km, last 30 days</div><div class="v">${f.length}</div><div>${big ? `Largest M${big.properties.mag.toFixed(1)}, ${esc(big.properties.place)}` : 'None at M1.5 or above'}</div></div>`);
+  } catch (e) { cardsHtml.push('<div><div class="l">USGS earthquakes</div><div>Unavailable right now.</div></div>'); }
+  try {
+    const a = await (await fetch('https://api.weather.gov/alerts/active?zone=PZZ673')).json();
+    const n = [...new Set((a.features || []).map(x => x.properties.event))];
+    cardsHtml.push(`<div><div class="l">NWS marine alerts, Santa Barbara Channel</div><div class="v">${n.length}</div><div>${n.length ? esc(n.join(' · ')) : 'No active alerts'}</div></div>`);
+  } catch (e) {}
+  document.getElementById('liveCards').innerHTML = cardsHtml.join('');
+  try {
+    let fc;
+    try { fc = await (await fetch('/api/marine-forecast')).json(); if (!fc.periods) throw 0; }
+    catch (e) { const p = (await (await fetch('https://api.weather.gov/zones/forecast/PZZ673/forecast')).json()).properties; fc = {periods: p.periods, updated: p.updated}; }
+    document.getElementById('fcst').innerHTML = (fc.periods || []).map(p => `<p style="font-size:14px;margin-bottom:8px"><b>${esc(p.name)}:</b> ${esc(p.detailedForecast)}</p>`).join('') + `<div class="src">Updated ${esc(new Date(fc.updated).toLocaleString('en-US'))}</div>`;
+  } catch (e) { document.getElementById('fcst').textContent = 'Forecast unavailable right now.'; }
+}
+loadLive(); setInterval(() => { liveLayer.clearLayers(); loadLive(); }, 10 * 60 * 1000);
+
+renderBook();
+const hw = location.hash.match(/^#well=([\w-]+)/);
+if (hw) { selectWell(hw[1]); setTimeout(() => document.getElementById('book').scrollIntoView(), 300); }
+})();
+</script>
+</body>
+</html>
