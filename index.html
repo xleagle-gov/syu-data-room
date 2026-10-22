@@ -148,20 +148,43 @@
 </head>
 <body>
 
-<header class="hero">
+<header class="hero" style="padding:24px 0 14px">
   <div class="wrap">
     <div class="kicker">Santa Ynez Unit · Engineering data room · Built from public records</div>
     <h1>The Santa Ynez Unit, from every public record, in one room.</h1>
+      </div>
+</header>
+
+<nav class="jump"><div class="wrap">
+  <a href="#map-sec">Map</a><a href="#briefing">Briefing</a><a href="#uptime">Uptime</a><a href="#scenario">Rate model</a><a href="#book">Well book</a><a href="#hondo">Hondo</a><a href="#idle">Well-work screen</a><a href="#production">Production</a><a href="#filings" class="fil">Reserves &amp; plan</a><a href="#calendar">Calendar</a><a href="#guidance" class="fil">Guidance</a><a href="#live">Live channel</a><a href="#sources">Sources</a>
+</div></nav>
+
+<section id="map-sec" style="padding-top:18px">
+  <div class="wrap">
+    <div class="maptools">
+      <span class="seg" id="colorBy"><button data-v="status" class="on">Wells by status</button><button data-v="platform">by platform</button><button data-v="deferred">by deferred bopd</button><button data-v="why">by idle reason</button></span>
+      <span class="seg" id="pipeBy"><button data-v="product" class="on">Pipes by product</button><button data-v="regulator">by regulator</button></span>
+      <label><input type="checkbox" id="tgLeases" checked> Leases</label>
+      <label><input type="checkbox" id="tgWells" checked> Wells</label>
+      <label><input type="checkbox" id="tgSticks"> Well paths</label>
+      <label><input type="checkbox" id="tgPipes" checked> Pipelines</label>
+      <label><input type="checkbox" id="tgLive" checked> Live (buoys, quakes)</label>
+    </div>
+    <div id="map"></div>
+    <div class="legend" id="legend"></div>
+    <p class="note" style="margin-top:8px">Platforms, every reported completion at its bottom-hole location, the 16 leases, the offshore lines to Las Flores Canyon, and onshore CA-324 and CA-325 to Pentland. The live layer adds NOAA buoys and the last 30 days of earthquakes.</p>
+    <p class="note" style="margin-top:8px">Onshore CA-324 and CA-325 routes are approximate (generalized EIA line); PHMSA's detailed route data needs registration. The Heritage-to-Harmony gas line is drawn straight because no route is published.</p>
+  </div>
+</section>
+
+<section id="intro" style="padding-top:28px">
+  <div class="wrap">
     <p class="lede">Federal well, production, platform, lease and pipeline records, read alongside Sable's own 10-K, 10-Qs and releases. The room answers operating questions: where barrels are being deferred, which wells to work next, what Hondo should add, and what is due when. Every number links to its source.</p>
     <p class="offer">I want to give Sable as much value as I can, in whatever form helps most. This room is my start, and it's yours to use.</p>
     <p class="asof" id="asof"></p>
     <div class="stats" id="stats"></div>
   </div>
-</header>
-
-<nav class="jump"><div class="wrap">
-  <a href="#briefing">Briefing</a><a href="#uptime">Uptime</a><a href="#scenario">Rate model</a><a href="#map-sec">Map</a><a href="#book">Well book</a><a href="#hondo">Hondo</a><a href="#idle">Well-work screen</a><a href="#production">Production</a><a href="#filings" class="fil">Reserves &amp; plan</a><a href="#calendar">Calendar</a><a href="#guidance" class="fil">Guidance</a><a href="#live">Live channel</a><a href="#sources">Sources</a>
-</div></nav>
+</section>
 
 <section id="briefing">
   <div class="wrap">
@@ -210,29 +233,10 @@
   </div>
 </section>
 
-<section id="map-sec">
-  <div class="wrap">
-    <div class="sec-label">04 · The map</div>
-    <h2>The whole system, clickable.</h2>
-    <p>Platforms, every reported completion at its bottom-hole location, the 16 leases, the offshore lines to Las Flores Canyon, and onshore CA-324 and CA-325 to Pentland. The live layer adds NOAA buoys and the last 30 days of earthquakes.</p>
-    <div class="maptools">
-      <span class="seg" id="colorBy"><button data-v="status" class="on">Wells by status</button><button data-v="platform">by platform</button><button data-v="deferred">by deferred bopd</button><button data-v="why">by idle reason</button></span>
-      <span class="seg" id="pipeBy"><button data-v="product" class="on">Pipes by product</button><button data-v="regulator">by regulator</button></span>
-      <label><input type="checkbox" id="tgLeases" checked> Leases</label>
-      <label><input type="checkbox" id="tgWells" checked> Wells</label>
-      <label><input type="checkbox" id="tgSticks"> Well paths</label>
-      <label><input type="checkbox" id="tgPipes" checked> Pipelines</label>
-      <label><input type="checkbox" id="tgLive" checked> Live (buoys, quakes)</label>
-    </div>
-    <div id="map"></div>
-    <div class="legend" id="legend"></div>
-    <p class="note" style="margin-top:8px">Onshore CA-324 and CA-325 routes are approximate (generalized EIA line); PHMSA's detailed route data needs registration. The Heritage-to-Harmony gas line is drawn straight because no route is published.</p>
-  </div>
-</section>
 
 <section id="book">
   <div class="wrap">
-    <div class="sec-label">05 · The well book</div>
+    <div class="sec-label">04 · The well book</div>
     <h2>Every completion, with its full history.</h2>
     <p>The completions BSEE reports on the three platforms. Click a row for monthly oil, water and gas since 2012 and the producing days behind them. Rates are calendar-day averages.</p>
     <div class="filters">
@@ -260,7 +264,7 @@
 
 <section id="hondo">
   <div class="wrap">
-    <div class="sec-label">06 · Hondo restart board</div>
+    <div class="sec-label">05 · Hondo restart board</div>
     <h2>Which Hondo wells carried the platform before shut-in.</h2>
     <div class="callout" id="hondoCallout"></div>
     <div class="grid2">
@@ -276,7 +280,7 @@
 
 <section id="idle">
   <div class="wrap">
-    <div class="sec-label">07 · Well-work screen</div>
+    <div class="sec-label">06 · Well-work screen</div>
     <h2>Which Harmony and Heritage wells to look at first, and what each is worth.</h2>
     <p>Three lists from the federal record, each a different kind of opportunity. <b>Slipping</b>: wells whose best two months since the restart beat the latest month. These are the cheapest barrels, because the well has already shown the rate. <b>Below 2015</b>: producing wells still short of what they made before the shut-in. <b>Idle</b>: non-producing completions ranked by their pre-shut-in rate.</p>
     <div class="callout" id="wwCallout"></div>
@@ -302,7 +306,7 @@
 
 <section id="production">
   <div class="wrap">
-    <div class="sec-label">08 · Production room</div>
+    <div class="sec-label">07 · Production room</div>
     <h2>Public record and company figures, side by side and labeled.</h2>
     <p>Bars are BSEE monthly oil by platform. Red points are Sable's disclosed figures, which are company estimates. BSEE runs about four months behind, so the two don't overlap yet.</p>
     <div class="seg" id="prodRange" style="margin-top:6px"><button data-v="2025-01" class="on">Restart, 2025 on</button><button data-v="2011-01">2011 on</button></div>
@@ -324,7 +328,7 @@
 
 <section id="filings" class="fil">
   <div class="wrap">
-    <div class="sec-label">09 · Reserves, plan and facilities</div>
+    <div class="sec-label">08 · Reserves, plan and facilities</div>
     <h2>What Sable has told the SEC, in one place.</h2>
     <p>Pulled from the 10-K, 10-Qs, 8-Ks and investor presentations, each with its exact quote and link.</p>
     <div id="filBlocks"></div>
@@ -333,7 +337,7 @@
 
 <section id="calendar">
   <div class="wrap">
-    <div class="sec-label">10 · Obligations calendar</div>
+    <div class="sec-label">09 · Obligations calendar</div>
     <h2>What is due, and when.</h2>
     <p>Court, regulatory, operating and financing dates from public dockets and filings, in one list. Red dots are still ahead.</p>
     <div class="filters"><select id="calKind"><option value="">All types</option></select><label class="note"><input type="checkbox" id="calFuture"> Upcoming only</label></div>
@@ -350,7 +354,7 @@
 
 <section id="guidance" class="fil">
   <div class="wrap">
-    <div class="sec-label">11 · Guidance history</div>
+    <div class="sec-label">10 · Guidance history</div>
     <h2>Every operating target Sable has published, in order.</h2>
     <p>Useful for anyone setting the next target: what was said, when, and what happened.</p>
     <div class="tablewrap" style="max-height:460px"><table class="book" id="guideTable"><thead><tr><th>Date</th><th>Document</th><th>Claim</th></tr></thead><tbody></tbody></table></div>
@@ -359,7 +363,7 @@
 
 <section id="live">
   <div class="wrap">
-    <div class="sec-label">12 · Live channel conditions</div>
+    <div class="sec-label">11 · Live channel conditions</div>
     <h2>The morning-coffee page for the platforms.</h2>
     <p>NOAA buoys in the Santa Barbara Channel, the NWS marine forecast for the channel, and earthquakes within 150 km of the unit. Refreshes every 10 minutes.</p>
     <div class="live" id="liveCards"><div class="note">Loading live data…</div></div>
@@ -373,7 +377,7 @@
 
 <section id="sources">
   <div class="wrap">
-    <div class="sec-label">13 · Sources and limits</div>
+    <div class="sec-label">12 · Sources and limits</div>
     <h2>What is public, and what is not.</h2>
     <ul class="plain">
       <li><strong>Federal record:</strong> BSEE Pacific OGOR-A production by well (1996 to the latest month), BSEE Pacific borehole, platform, pipeline and lease-ownership files, BOEM Pacific GIS layers, EPA FRS facility points, EIA crude pipeline layer.</li>
@@ -705,7 +709,7 @@ function drawWells(){
   wells.forEach(w => {
     if (w.lat == null) return;
     const c = wellColor(w);
-    const r = colorMode === 'deferred' ? Math.max(4, Math.min(11, 3 + Math.sqrt(w.deferred) / 3)) : 4.5;
+    const r = colorMode === 'deferred' ? Math.max(4, Math.min(11, 3 + Math.sqrt(w.deferred) / 3)) : 6;
     const m = L.circleMarker([w.lat, w.lon], {radius: r, color: '#fff', weight: 1, fillColor: c, fillOpacity: .95});
     m.bindPopup(() => wellPopup(w));
     wellLayer.addLayer(m);
@@ -740,7 +744,7 @@ D.platforms.forEach(p => {
 });
 
 const liveLayer = L.layerGroup().addTo(map);
-const bounds = L.latLngBounds([]); leaseLayer.eachLayer(l => bounds.extend(l.getBounds())); map.fitBounds(bounds.pad(0.3));
+const bounds = L.latLngBounds(wells.filter(w => w.lat != null).map(w => [w.lat, w.lon])); map.fitBounds(bounds.pad(0.08));
 
 function legend(){
   const wl = colorMode === 'status' ? Object.entries(GC).map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)}</span>`)
