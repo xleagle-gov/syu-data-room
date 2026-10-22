@@ -161,7 +161,7 @@
 </header>
 
 <nav class="jump"><div class="wrap">
-  <a href="#map-sec">Map</a><a href="#briefing">Briefing</a><a href="#uptime">Uptime</a><a href="#scenario">Rate model</a><a href="#book">Well book</a><a href="#hondo">Hondo</a><a href="#idle">Well-work screen</a><a href="#production">Production</a><a href="#filings" class="fil">Reserves &amp; plan</a><a href="#calendar">Calendar</a><a href="#guidance" class="fil">Guidance</a><a href="#live">Live channel</a><a href="#sources">Sources</a>
+  <a href="#map-sec">Map</a><a href="#scenario">Rate model</a><a href="#briefing">Briefing</a><a href="#uptime">Uptime</a><a href="#book">Well book</a><a href="#hondo">Hondo</a><a href="#idle">Well-work screen</a><a href="#production">Production</a><a href="#filings" class="fil">Reserves &amp; plan</a><a href="#calendar">Calendar</a><a href="#guidance" class="fil">Guidance</a><a href="#live">Live channel</a><a href="#sources">Sources</a>
 </div></nav>
 
 <section id="map-sec" style="padding-top:18px">
@@ -182,6 +182,22 @@
   </div>
 </section>
 
+<section id="scenario">
+  <div class="wrap">
+    <div class="sec-label">01 · Rate scenario model</div>
+    <h2>What has to be true to hit the rate.</h2>
+    <p>Start from what Harmony and Heritage showed they can make in the latest federal month, then move the levers. Defaults come from the public record and Sable's disclosures. It's a scenario calculator, not a forecast.</p>
+    <div class="model">
+      <div class="ctl" id="ctl"></div>
+      <div>
+        <div class="out" id="mOut"></div>
+        <div class="chartbox tall"><canvas id="mChart"></canvas></div>
+        <p class="note" id="mNote" style="margin-top:8px"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="intro" style="padding-top:28px">
   <div class="wrap">
     <p class="lede">Federal well, production, platform, lease and pipeline records, read alongside Sable's own 10-K, 10-Qs and releases. The room answers operating questions: where barrels are being deferred, which wells to work next, what Hondo should add, and what is due when. Every number links to its source.</p>
@@ -193,7 +209,7 @@
 
 <section id="briefing">
   <div class="wrap">
-    <div class="sec-label">01 · Briefing</div>
+    <div class="sec-label">02 · Briefing</div>
     <h2>Six things the public record says about the SYU right now.</h2>
     <p>Each one comes with the question I'd want answered next. Most of those answers need data only Sable has.</p>
     <div class="brief" id="briefCards"></div>
@@ -202,7 +218,7 @@
 
 <section id="uptime">
   <div class="wrap">
-    <div class="sec-label">02 · Uptime and deferred production</div>
+    <div class="sec-label">03 · Uptime and deferred production</div>
     <h2>The wells can make more than they are making.</h2>
     <p>BSEE reports each well's days on production. A well's <b>potential</b> is its oil divided by its producing days: what it would make running every day of the month. The gap between potential and actual is deferred production, from facility limits, sales constraints or downtime. Wells with fewer than 7 producing days in a month count at actual, so start-up months don't inflate the gap.</p>
     <div class="seg" id="upPlat"><button data-v="All" class="on">Harmony + Heritage</button><button data-v="Harmony">Harmony</button><button data-v="Heritage">Heritage</button></div>
@@ -222,21 +238,6 @@
   </div>
 </section>
 
-<section id="scenario">
-  <div class="wrap">
-    <div class="sec-label">03 · Rate scenario model</div>
-    <h2>What has to be true to hit the rate.</h2>
-    <p>Start from what Harmony and Heritage showed they can make in the latest federal month, then move the levers. Defaults come from the public record and Sable's disclosures. It's a scenario calculator, not a forecast.</p>
-    <div class="model">
-      <div class="ctl" id="ctl"></div>
-      <div>
-        <div class="out" id="mOut"></div>
-        <div class="chartbox tall"><canvas id="mChart"></canvas></div>
-        <p class="note" id="mNote" style="margin-top:8px"></p>
-      </div>
-    </div>
-  </div>
-</section>
 
 
 <section id="book">
@@ -749,7 +750,7 @@ D.platforms.forEach(p => {
 });
 
 const liveLayer = L.layerGroup().addTo(map);
-const bounds = L.latLngBounds(wells.filter(w => w.lat != null).map(w => [w.lat, w.lon])); map.fitBounds(bounds.pad(0.08));
+const bounds = L.latLngBounds(wells.filter(w => w.lat != null).map(w => [w.lat, w.lon])); map.fitBounds(bounds.pad(0.08)); map.setZoom(map.getZoom() - 1);
 
 function legend(){
   const wl = colorMode === 'status' ? Object.entries(GC).map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)}</span>`)
