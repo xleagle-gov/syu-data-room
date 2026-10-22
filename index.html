@@ -112,6 +112,19 @@
   .ctl small.rec{font-weight:600}
   .ctl small.rec.in{color:#2a7d2a}
   .ctl small.rec.off{color:#b35c00}
+  .mbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:14px}
+  .plaus{font-family:var(--sans);font-size:13px;font-weight:700;padding:6px 10px;border:1px solid currentColor}
+  .plaus.g{color:#2a7d2a}.plaus.a{color:#b35c00}.plaus.r{color:#c0140b}
+  .lnk{font-family:var(--sans);font-size:12px;padding:6px 12px;background:#fff;border:1px solid var(--txt);cursor:pointer}
+  .msel{font-family:var(--sans);font-size:13px;padding:6px;width:100%;margin-bottom:10px}
+  .solve{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:13px}
+  .solve td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+  .solve td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+  .tag{font-size:11px;font-weight:700;padding:1px 6px;border-radius:2px;white-space:nowrap}
+  .tag.g{background:#e4f1e4;color:#2a7d2a}.tag.a{background:#fbecd9;color:#b35c00}.tag.r{background:#fbe0de;color:#c0140b}.tag.n{background:#eee;color:#555}
+  .out.money .v{color:var(--txt)}
+  .mtab table td,.mtab table th{text-align:right;white-space:nowrap}
+  .mtab table td:first-child,.mtab table th:first-child{text-align:left}
   .out{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--txt);margin-bottom:10px}
   .out div{padding:10px 12px;border-right:1px solid var(--line)}
   .out .v{font-size:22px;font-weight:700;color:var(--acc)}
@@ -193,14 +206,67 @@
     <div class="sec-label">01 · Rate scenario model</div>
     <h2>What has to be true to hit the rate.</h2>
     <p>Start from what Harmony and Heritage showed they can make in the latest federal month, then move the levers. Defaults come from the public record and Sable's disclosures. It's a scenario calculator, not a forecast. <b style="color:#2a7d2a">Green dotted marks</b> under each slider show what the record supports; the note turns <b style="color:#b35c00">orange</b> when you leave it.</p>
+    <div class="mbar">
+      <span class="seg" id="mPreset"><button data-v="record" class="on">Record only</button><button data-v="sable">Sable's case</button><button data-v="down">Downside</button></span>
+      <span class="plaus" id="mPlaus"></span>
+      <button class="lnk" id="mShare">Copy link to this scenario</button>
+    </div>
+    <p class="note" id="mPresetNote" style="margin-top:6px"></p>
     <div class="model">
       <div class="ctl" id="ctl"></div>
       <div>
         <div class="out" id="mOut"></div>
+        <div class="out money" id="mMoney"></div>
+        <label class="note" style="display:block;margin-top:4px"><input type="checkbox" id="mGuide"> Show Sable's past rate guidance on the chart</label>
         <div class="chartbox tall"><canvas id="mChart"></canvas></div>
         <p class="note" id="mNote" style="margin-top:8px"></p>
+        <p class="note" id="mSlip" style="margin-top:6px"></p>
       </div>
     </div>
+
+    <div class="grid2" style="margin-top:26px">
+      <div class="card">
+        <h3>What has to be true</h3>
+        <p class="note" style="margin-bottom:8px">Pick a Sable target. For each lever, holding the others where they are, this is the value it would need to hit the target alone.</p>
+        <select id="mTarget" class="msel"></select>
+        <div id="mSolve"></div>
+      </div>
+      <div class="card">
+        <h3 id="mFallTitle">Where the barrels come from</h3>
+        <div class="chartbox"><canvas id="mFall"></canvas></div>
+        <p class="note" id="mFallNote" style="margin-top:8px"></p>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:22px">
+      <div class="card">
+        <h3>Which lever matters most</h3>
+        <div class="chartbox"><canvas id="mTorn"></canvas></div>
+        <p class="note" id="mTornNote" style="margin-top:8px"></p>
+      </div>
+      <div class="card">
+        <h3>With Sable's own data, each lever stops being a guess</h3>
+        <table class="juris">
+          <thead><tr><th>Lever</th><th>Public proxy here</th><th>Sable's source</th><th>What it unlocks</th></tr></thead>
+          <tbody>
+            <tr><td>Potential</td><td class="q">BSEE oil ÷ producing days, four months late</td><td>Well tests</td><td>Each well's real rate this week</td></tr>
+            <tr><td>Uptime</td><td class="q">Producing days ÷ calendar days</td><td>SCADA and downtime logs</td><td>Split compressor, power, sales and well downtime; fix the biggest bucket</td></tr>
+            <tr><td>Decline</td><td class="q">Exxon 2011-15 platform curves</td><td>Rate and pressure history by well</td><td>Decline by zone and well, not a platform average</td></tr>
+            <tr><td>Adds and uplift</td><td class="q">Sable's ~600 bopd claim</td><td>Pre/post tests on each perf-add</td><td>Rank the next jobs by measured uplift</td></tr>
+            <tr><td>Hondo</td><td class="q">2015 rates</td><td>Restart tests</td><td>Ramp against plan from day one</td></tr>
+            <tr><td>Cap</td><td class="q">Disclosed buyer caps</td><td>LFC throughput and nominations</td><td>Which constraint binds, each day</td></tr>
+            <tr><td>Netback and cost</td><td class="q">10-Q averages</td><td>Sales tickets and AFEs</td><td>Payback by job, not by assumption</td></tr>
+          </tbody>
+        </table>
+        <p class="note" style="margin-top:10px">Week one: connect these feeds, and every default on this page becomes a live number.</p>
+      </div>
+    </div>
+
+    <details class="mtab">
+      <summary><b>Month-by-month numbers</b> <span class="note">(open to check the arithmetic)</span></summary>
+      <button class="lnk" id="mCsv" style="margin:8px 0">Download CSV</button>
+      <div style="overflow-x:auto"><table class="juris" id="mTable"></table></div>
+    </details>
   </div>
 </section>
 
@@ -608,90 +674,274 @@ const fitDecl = p => {
 };
 const exDecl = ['Harmony', 'Heritage', 'Hondo'].map(fitDecl).map(d => Math.round(Math.max(0, d) * 100));
 const r100 = x => Math.round(x / 100) * 100;
-// [key, label, default, min, max, step, unit, note, [lo, hi, what the range is]]
+// [key, label, default, min, max, step, unit, note, [lo, hi, what the range is, 'min' if one-sided]]
 const CTL = [
   ['pot', 'Harmony + Heritage potential', r100(hhPot), 20000, 50000, 500, 'bopd', `${mlabel(latest)} potential from BSEE`, [r100(Math.min(...pot26)), r100(Math.max(...pot26)), 'range of 2026 federal months']],
   ['up', 'Uptime', Math.round(hhAct / hhPot * 100), 50, 100, 1, '%', `${mlabel(latest)} actual/potential`, [Math.round(hhAct / hhPot * 100), Math.round(exUp * 100), `${mlabel(latest)} to Exxon's 2012-14 average`]],
   ['dec', 'Annual decline', Math.max(...exDecl), 0, 25, 1, '%/yr', 'Exxon held ~1%/yr with active well work, 2011 to 2015', [Math.min(...exDecl), Math.max(...exDecl), 'Exxon-era platforms with active well work; less work means steeper (default is the top of this)']],
-  ['adds', 'Harmony + Heritage adds since June', 0, 0, 30, 1, 'wells', 'perf-adds or reactivations', null],
+  ['adds', 'Harmony + Heritage adds since June', 0, 0, 50, 1, 'wells', 'perf-adds or reactivations', null],
   ['per', 'Uplift per add', 600, 100, 1500, 50, 'bopd', 'Sable estimate: ~600 bopd per perf-add', [600, 600, "Sable's estimate"]],
   ['hstart', 'Hondo restart', 2, 0, 9, 1, 'month', 'months after Oct 2026', [0, 2, 'Sable guides Q4 2026']],
   ['hbase', 'Hondo base rate', r100(hondoPre), 0, 6000, 100, 'bopd', 'pre-shut-in Jan to Apr 2015', [r100(hondoPre), r100(hondoPre), 'what the wells made before shut-in']],
   ['hadds', 'Hondo perf-adds', 9, 0, 15, 1, 'wells', 'Sable plan: 9 of 15 production wells', [9, 9, "Sable's plan"]],
   ['cap', 'Facility / sales cap', 60000, 30000, 80000, 1000, 'bopd', 'ceiling from LFC processing or buyers', [45000, 80000, "Sable's ~45K October exit means the July 40K buyer cap is behind it", 'min']],
+  ['net', 'Netback per barrel', 48, 25, 80, 1, '$/bbl', 'realized price × net revenue interest', [46, 49, "Sable's realized $55-59 × 83.6% NRI"]],
+  ['cost', 'Cost per perf-add', 800, 300, 2000, 50, '$K', 'rig, perforating and workover', [800, 800, "Sable's ~$800K per perf-add"]],
 ];
-const fmtC = (c, x) => c[0] === 'up' || c[0] === 'dec' ? x + '%' : c[0] === 'hstart' ? mlabel(addM('2026-10', x)) : fmt(x);
+const CK = Object.fromEntries(CTL.map(c => [c[0], c]));
+const RATE_KEYS = ['pot', 'up', 'dec', 'adds', 'per', 'hstart', 'hbase', 'hadds', 'cap'];
+const DOWN = ['dec', 'hstart']; // levers where a lower value means more oil
+const fmtC = (c, x) => c[0] === 'up' || c[0] === 'dec' ? x + '%' : c[0] === 'hstart' ? mlabel(addM('2026-10', x)) : c[0] === 'net' ? '$' + x : c[0] === 'cost' ? '$' + fmt(x) + 'K' : fmt(x);
 const pos = (c, x) => `calc(8px + (100% - 16px) * ${(x - c[3]) / (c[4] - c[3])})`;
-const bandHTML = c => `<div class="band" id="b_${c[0]}"></div>`;
 function drawBand(c, lo, hi){
   const el = document.getElementById('b_' + c[0]);
   el.innerHTML = lo === hi ? `<i class="tick" style="left:${pos(c, lo)}"></i>`
-    : `<i class="zone" style="left:${pos(c, lo)};width:calc((100% - 16px) * ${(hi - lo) / (c[4] - c[3])})"></i>`;
+    : `<i class="zone" style="left:${pos(c, lo)};width:calc((100% - 16px) * ${(Math.min(hi, c[4]) - lo) / (c[4] - c[3])})"></i>`;
 }
 const ctlEl = document.getElementById('ctl');
-ctlEl.innerHTML = CTL.map(c => `<label><span>${c[1]} <b id="v_${c[0]}"></b></span><input type="range" id="c_${c[0]}" min="${c[3]}" max="${c[4]}" step="${c[5]}" value="${c[2]}">${bandHTML(c)}<small class="rec" id="r_${c[0]}"></small><small>${c[7]}</small></label>`).join('') +
-  `<button class="seg" id="mReset" style="padding:6px 12px;font-family:var(--sans);font-size:12px;background:#fff;cursor:pointer">Reset to defaults</button>`;
-let mChart;
-function runModel(){
-  const v = {}; CTL.forEach(c => { v[c[0]] = +document.getElementById('c_' + c[0]).value; });
-  const showV = (k, t) => document.getElementById('v_' + k).textContent = t;
-  showV('pot', fmt(v.pot)); showV('up', v.up + '%'); showV('dec', v.dec + '%'); showV('adds', v.adds); showV('per', fmt(v.per));
-  showV('hstart', mlabel(addM('2026-10', v.hstart))); showV('hbase', fmt(v.hbase)); showV('hadds', v.hadds); showV('cap', fmt(v.cap));
-  const months = []; for (let m = addM(latest, 1); m <= '2027-12'; m = addM(m, 1)) months.push(m);
-  const k = Math.pow(1 - v.dec / 100, 1 / 12);
-  const hStart = addM('2026-10', v.hstart);
-  const rows = months.map((m, i) => {
-    const t = i + 1;
-    const hh = (v.pot + v.adds * v.per) * Math.pow(k, t) * v.up / 100;
-    let ho = 0;
-    if (m >= hStart) {
-      const j = months.indexOf(m) - months.indexOf(hStart);
-      const ramp = Math.min(1, (j + 1) / 3);
-      ho = (v.hbase + v.hadds * v.per) * ramp * Math.pow(k, j) * v.up / 100;
-    }
+ctlEl.innerHTML = CTL.map(c => `<label><span>${c[1]} <b id="v_${c[0]}"></b></span><input type="range" id="c_${c[0]}" min="${c[3]}" max="${c[4]}" step="${c[5]}" value="${c[2]}"><div class="band" id="b_${c[0]}"></div><small class="rec" id="r_${c[0]}"></small><small>${c[7]}</small></label>`).join('') +
+  `<button class="lnk" id="mReset">Reset to defaults</button>`;
+const readV = () => { const v = {}; CTL.forEach(c => { v[c[0]] = +document.getElementById('c_' + c[0]).value; }); return v; };
+const setV = v => CTL.forEach(c => { if (v[c[0]] != null) document.getElementById('c_' + c[0]).value = v[c[0]]; });
+
+// the model: monthly gross bopd, Harmony + Heritage and Hondo, through Dec 2027
+const MM = []; for (let m = addM(latest, 1); m <= '2027-12'; m = addM(m, 1)) MM.push(m);
+const M27 = MM.filter(m => m >= '2027-01');
+function model(v){
+  const k = Math.pow(1 - v.dec / 100, 1 / 12), up = v.up / 100, iStart = MM.indexOf(addM('2026-10', v.hstart));
+  return MM.map((m, t) => {
+    const hh = (v.pot + v.adds * v.per) * Math.pow(k, t + 1) * up;
+    const j = t - iStart;
+    const ho = iStart >= 0 && j >= 0 ? (v.hbase + v.hadds * v.per) * Math.min(1, (j + 1) / 3) * Math.pow(k, j) * up : 0;
     const tot = Math.min(v.cap, hh + ho);
-    return {m, hh: Math.min(hh, v.cap), ho: Math.max(0, tot - Math.min(hh, v.cap)), tot, raw: hh + ho};
+    return {m, t: t + 1, hh: Math.min(hh, v.cap), hhRaw: hh, ho: tot - Math.min(hh, v.cap), hoRaw: ho, tot, raw: hh + ho};
   });
-  const at = m => rows.find(r => r.m === m) || {tot: 0};
-  const avg27 = rows.filter(r => r.m >= '2027-01').reduce((s, r) => s + r.tot, 0) / 12;
-  const capped = rows.filter(r => r.raw > v.cap).length;
+}
+const avgOf = (rows, ms, hhOnly) => ms.reduce((s, m) => { const r = rows.find(x => x.m === m); return s + (hhOnly ? r.hh : r.tot); }, 0) / ms.length;
+
+// Sable targets, gross. Aug 10 FY27 guide is boe/d, so oil alone sits below it.
+const TARGETS = [
+  {id: 'oct', label: "Oct 2026 exit: ~45,000 bopd from Harmony + Heritage (Sep 28, pre-Hondo)", val: 45000, months: ['2026-10'], hhOnly: true},
+  {id: 'y27', label: '2027 average: 52,500 (Aug 10 FY27 gross guide midpoint, boe/d)', val: 52500, months: M27},
+  {id: 'ramp', label: 'Dec 2027: 62,000 fully ramped (Jun 1 gross guide)', val: 62000, months: ['2027-12']},
+];
+document.getElementById('mTarget').innerHTML = TARGETS.map(t => `<option value="${t.id}">${esc(t.label)}</option>`).join('');
+const target = () => TARGETS.find(t => t.id === document.getElementById('mTarget').value);
+const hit = (v, tg) => avgOf(model(v), tg.months, tg.hhOnly);
+const needAdds = v => solveLever(v, 'adds', TARGETS[0]);
+
+// smallest change in one lever that reaches the target, scanning past the slider out to a physical limit
+const HARD = {pot: 120000, up: 100, dec: 0, adds: 150, per: 4000, hstart: 0, hbase: 20000, hadds: 15, cap: 120000};
+function solveLever(v, key, tg){
+  const c = CK[key], steps = [], lo = Math.min(c[3], HARD[key]), hi = Math.max(c[4], HARD[key]);
+  for (let x = lo; x <= hi + 1e-9; x += c[5]) steps.push(Math.round(x * 100) / 100);
+  if (DOWN.includes(key)) steps.reverse();
+  for (const x of steps) if (hit({...v, [key]: x}, tg) >= tg.val) return x;
+  return null;
+}
+const band = (key, v) => key === 'adds' ? [needAdds(v) ?? CK.adds[4], CK.adds[4], "what Sable's ~45K October exit needs at these settings", 'min'] : CK[key][8];
+const inBand = (key, x, v) => { const [lo, hi] = band(key, v); return x >= lo && x <= hi; };
+
+let mChart, mFall, mTorn, mRows = [], presetOn = 'record';
+const PRESETS = {
+  record: {note: "Record only: every lever at what the public record shows today, with no well work since June that BSEE can't see yet.", v: () => Object.fromEntries(CTL.map(c => [c[0], c[2]]))},
+  sable: {note: "Sable's case: enough Harmony + Heritage adds to reach Sable's ~45K October exit, Hondo back in November after MMA approval, the plan's 9 Hondo perf-adds, and a cap that no longer binds.",
+    v: () => { const v = {...PRESETS.record.v(), hstart: 1, cap: 70000}; v.adds = needAdds(v) ?? CK.adds[4]; return v; }},
+  down: {note: 'Downside: no adds since June, uptime slips to 80%, decline of 12% with little well work, perf-adds make 400 bopd, Hondo slips to April 2027 with 5 perf-adds, and sales stay capped at 45,000.',
+    v: () => ({...PRESETS.record.v(), up: 80, dec: 12, adds: 0, per: 400, hstart: 6, hadds: 5, cap: 45000})},
+};
+
+function runModel(){
+  const v = readV(), rows = model(v); mRows = rows;
+  CTL.forEach(c => document.getElementById('v_' + c[0]).textContent = fmtC(c, v[c[0]]));
+  const at = m => rows.find(r => r.m === m);
+  const avg27 = avgOf(rows, M27);
   document.getElementById('mOut').innerHTML = [
     [fmt(at('2026-10').tot), 'Oct 2026 bopd (Sable est. exit ~45K)'],
     [fmt(at('2026-12').tot), 'Dec 2026 bopd'],
     [fmt(avg27), '2027 average bopd'],
   ].map(x => `<div><div class="v">${x[0]}</div><div class="l">${x[1]}</div></div>`).join('');
-  const gap45 = 45000 / (v.up / 100) - v.pot;
-  const need = Math.max(0, Math.ceil(gap45 / v.per));
+
+  // money
+  const rev27 = M27.reduce((s, m) => s + at(m).tot * dim(m) * v.net, 0) / 1e6;
+  const prog = (v.adds + v.hadds) * v.cost / 1000;
+  const payDays = v.cost * 1000 / (v.per * v.up / 100 * v.net);
+  document.getElementById('mMoney').innerHTML = [
+    ['$' + fmt(rev27) + 'M', `2027 net revenue at $${v.net}/bbl`],
+    ['$' + (Math.round(prog * 10) / 10) + 'M', `perf-add program (${v.adds + v.hadds} jobs at $${fmt(v.cost)}K)`],
+    [fmt(payDays) + ' days', `payback per perf-add (${fmt(v.per * v.up / 100)} bopd at $${v.net})`],
+  ].map(x => `<div><div class="v">${x[0]}</div><div class="l">${x[1]}</div></div>`).join('');
+
+  // record bands and plausibility
+  let inside = 0;
   CTL.forEach(c => {
-    const [lo, hi, what, kind] = c[0] === 'adds' ? [need, c[4], `what Sable's ~45K October exit needs at these settings`, 'min'] : c[8];
+    const [lo, hi, what, kind] = band(c[0], v);
     drawBand(c, lo, hi);
-    const x = v[c[0]], ok = x >= lo && x <= hi;
+    const x = v[c[0]], ok = x >= lo && x <= hi; if (ok) inside++;
     const el = document.getElementById('r_' + c[0]);
     el.className = 'rec ' + (ok ? 'in' : 'off');
     el.textContent = (kind === 'min' ? `Record: at least ${fmtC(c, lo)}` : lo === hi ? `Record: ${fmtC(c, lo)}` : `Record: ${fmtC(c, lo)} to ${fmtC(c, hi)}`) + ` · ${what}` + (ok ? '' : x > hi ? ' · you are above it' : ' · you are below it');
   });
+  const outN = CTL.length - inside, pl = document.getElementById('mPlaus');
+  pl.className = 'plaus ' + (outN === 0 ? 'g' : outN <= 2 ? 'a' : 'r');
+  pl.textContent = `${inside} of ${CTL.length} levers inside the public record` + (outN === 0 ? '' : outN <= 2 ? ' · a stretch' : ' · aggressive');
+
+  const capped = rows.filter(r => r.raw > v.cap).length;
   document.getElementById('mNote').innerHTML =
-    `Federal data stops at ${mlabel(latest)} and can't see work done since. At ${v.up}% uptime, Sable's ~45K October exit implies about ${fmt(Math.max(0, gap45))} bopd of potential added since then` +
-    (gap45 > 0 ? ` (about ${Math.ceil(gap45 / v.per)} adds at ${fmt(v.per)} bopd each, or the equivalent from uptime and LFC upgrades). Set the adds slider to test it. ` : '. ') +
-    (capped ? `The cap binds in ${capped} of ${rows.length} months. ` : '') +
-    `Hondo ramps linearly over three months from restart. Company estimates are Sable's; the arithmetic is mine.`;
+    `Federal data stops at ${mlabel(latest)} and can't see work done since. Model output is gross oil; Hondo ramps linearly over three months from restart.` +
+    (capped ? ` The cap binds in ${capped} of ${rows.length} months.` : '') + ` Company figures are Sable's; the arithmetic is mine.`;
+
+  drawMain(v, rows);
+  drawSolve(v);
+  drawFall(v, rows);
+  drawTorn(v);
+  drawTable(v, rows);
+}
+
+function drawMain(v, rows){
   const disc = {'2026-07': 32000, '2026-08': 32000, '2026-09': 34000, '2026-10': 45000};
+  const guide = document.getElementById('mGuide').checked;
+  const g = (a, b) => MM.map(m => m >= '2027-01' ? b : m >= '2026-07' ? a : null);
   if (mChart) mChart.destroy();
-  const o = chartOpts('bopd', {stacked: true});
   mChart = new Chart(document.getElementById('mChart'), {
-    data: {labels: months.map(mlabel), datasets: [
+    data: {labels: MM.map(mlabel), datasets: [
       {type: 'bar', label: 'Harmony + Heritage (model)', data: rows.map(r => r.hh), backgroundColor: '#1f77b4', stack: 's'},
       {type: 'bar', label: 'Hondo (model)', data: rows.map(r => r.ho), backgroundColor: '#7a5195', stack: 's'},
-      {type: 'line', label: "Sable's ~45K exit", data: months.map(m => m >= '2026-10' ? 45000 : null), borderColor: '#2a7d2a', borderDash: [4, 4], borderWidth: 2, pointRadius: 0, stack: 'g'},
-      ...(Math.max(...rows.map(r => r.raw)) > v.cap * 0.8 ? [{type: 'line', label: 'Facility / sales cap', data: months.map(() => v.cap), borderColor: '#555', borderDash: [2, 3], borderWidth: 2, pointRadius: 0, stack: 'c'}] : []),
-      {type: 'line', label: 'Sable disclosed (est.)', data: months.map(m => disc[m] ?? null), borderColor: '#e3120b', backgroundColor: '#e3120b', pointRadius: 5, pointStyle: 'rectRot', showLine: false, stack: 'd'},
+      {type: 'line', label: "Sable's ~45K exit", data: MM.map(m => m >= '2026-10' ? 45000 : null), borderColor: '#2a7d2a', borderDash: [4, 4], borderWidth: 2, pointRadius: 0, stack: 'g'},
+      ...(Math.max(...rows.map(r => r.raw)) > v.cap * 0.8 ? [{type: 'line', label: 'Facility / sales cap', data: MM.map(() => v.cap), borderColor: '#555', borderDash: [2, 3], borderWidth: 2, pointRadius: 0, stack: 'c'}] : []),
+      ...(guide ? [
+        {type: 'line', label: 'Jun 1 guide (boe/d)', data: g(45000, 57500), borderColor: '#999', borderDash: [8, 4], borderWidth: 2, pointRadius: 0, stepped: true, stack: 'g1'},
+        {type: 'line', label: 'Aug 10 guide (boe/d)', data: g(50000, 52500), borderColor: '#f4a259', borderDash: [8, 4], borderWidth: 2, pointRadius: 0, stepped: true, stack: 'g2'},
+      ] : []),
+      {type: 'line', label: 'Sable disclosed (est.)', data: MM.map(m => disc[m] ?? null), borderColor: '#e3120b', backgroundColor: '#e3120b', pointRadius: 5, pointStyle: 'rectRot', showLine: false, stack: 'd'},
     ]},
-    options: o
+    options: chartOpts('bopd', {stacked: true})
   });
+  document.getElementById('mSlip').innerHTML = guide
+    ? `Guidance lines are midpoints of Sable's gross ranges (Jun 1: Q2-Q4 2026 42.5-47.5, 2027 55-60 kboe/d; Aug 10: 2H26 47.5-52.5, FY27 50-55 kboe/d). They include gas, so oil alone sits lower. Hondo's restart date has moved four times: June 2026 (Mar 16), end-Q2 (Mar 30), Q3 (Jun 1), September (Aug 10), Q4 (Sep 28). <a href="#guidance">Full guidance history</a>.`
+    : '';
 }
-CTL.forEach(c => document.getElementById('c_' + c[0]).addEventListener('input', runModel));
-document.getElementById('mReset').addEventListener('click', () => { CTL.forEach(c => document.getElementById('c_' + c[0]).value = c[2]); runModel(); });
-runModel();
+
+function drawSolve(v){
+  const tg = target(), now = hit(v, tg);
+  const rowsH = RATE_KEYS.map(key => {
+    const c = CK[key];
+    if (tg.hhOnly && ['hstart', 'hbase', 'hadds'].includes(key)) return `<tr><td>${c[1]}</td><td class="n">n/a</td><td><span class="tag n">target is before Hondo</span></td></tr>`;
+    const x = solveLever(v, key, tg);
+    let val, tag;
+    if (now >= tg.val) { val = fmtC(c, v[key]); tag = '<span class="tag g">already there</span>'; }
+    else if (x == null) { val = 'no value'; tag = '<span class="tag r">not with this lever alone</span>'; }
+    else if (x > c[4] || x < c[3]) { val = fmtC(c, x); tag = '<span class="tag r">far outside the record</span>'; }
+    else if (key === 'adds') { val = fmtC(c, x); tag = '<span class="tag n">since June; BSEE can\'t see it yet</span>'; }
+    else { val = fmtC(c, x); tag = inBand(key, x, v) ? '<span class="tag g">inside the record</span>' : '<span class="tag a">a stretch</span>'; }
+    return `<tr><td>${c[1]}</td><td class="n">${val}</td><td>${tag}</td></tr>`;
+  });
+  document.getElementById('mSolve').innerHTML = `<p class="note" style="margin-bottom:6px">This scenario makes <b>${fmt(now)}</b> against a target of <b>${fmt(tg.val)}</b>` +
+    (now >= tg.val ? '.' : `: ${fmt(tg.val - now)} short.`) + `</p><table class="solve">${rowsH.join('')}</table>`;
+}
+
+// gap waterfall: from the latest federal month's actual to the scenario, then to the target
+function comps(v, rows, ms, tg){
+  const up0 = hhAct / hhPot, up = v.up / 100, k = Math.pow(1 - v.dec / 100, 1 / 12);
+  const parts = {base: 0, pot: 0, up: 0, adds: 0, dec: 0, hondo: 0, cap: 0};
+  ms.forEach(m => {
+    const r = rows.find(x => x.m === m);
+    parts.base += hhAct; parts.pot += (v.pot - hhPot) * up0; parts.up += v.pot * (up - up0);
+    parts.adds += v.adds * v.per * up; parts.dec -= (v.pot + v.adds * v.per) * (1 - Math.pow(k, r.t)) * up;
+    if (tg.hhOnly) parts.cap -= r.hhRaw - r.hh; else { parts.hondo += r.hoRaw; parts.cap -= r.raw - r.tot; }
+  });
+  Object.keys(parts).forEach(k2 => parts[k2] /= ms.length);
+  return parts;
+}
+function drawFall(v, rows){
+  const tg = target(), p = comps(v, rows, tg.months, tg);
+  const steps = [['Potential vs ' + mlabel(latest), p.pot], ['Uptime', p.up], ['H+H adds', p.adds], ['Decline', p.dec], ['Hondo', p.hondo], ['Cap', p.cap]];
+  const labels = [mlabel(latest) + ' actual'], data = [[0, p.base]], colors = ['#555'];
+  let run = p.base;
+  steps.forEach(([l, d]) => { labels.push(l); data.push([run, run + d]); colors.push(d >= 0 ? '#2a7d2a' : '#c0140b'); run += d; });
+  labels.push('Scenario'); data.push([0, run]); colors.push('#1f77b4');
+  const gap = tg.val - run;
+  labels.push(gap > 0 ? 'Still missing' : 'Above target'); data.push([run, tg.val]); colors.push(gap > 0 ? '#f4a259' : '#9ccc9c');
+  if (mFall) mFall.destroy();
+  mFall = new Chart(document.getElementById('mFall'), {type: 'bar',
+    data: {labels, datasets: [{data, backgroundColor: colors}]},
+    options: {responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {legend: {display: false}, tooltip: {callbacks: {label: c => { const [a, b] = c.raw; return (c.dataIndex === 0 || labels[c.dataIndex] === 'Scenario' ? '' : (b - a >= 0 ? '+' : '')) + fmt(c.dataIndex === 0 || labels[c.dataIndex] === 'Scenario' ? b : b - a) + ' bopd'; }}}},
+      scales: {x: {ticks: {font: {size: 10}, maxRotation: 45, minRotation: 0}, grid: {display: false}}, y: {beginAtZero: true, ticks: {font: {size: 11}}, title: {display: true, text: 'bopd', font: {size: 11}}}}}});
+  document.getElementById('mFallTitle').textContent = `Where the barrels come from: ${tg.months.length > 1 ? '2027 average' : mlabel(tg.months[0])}${tg.hhOnly ? ', Harmony + Heritage' : ''}`;
+  document.getElementById('mFallNote').textContent = `From ${mlabel(latest)}'s federal actual of ${fmt(hhAct)} bopd to this scenario's ${fmt(run)}, then to Sable's ${fmt(tg.val)}. ` +
+    (gap > 0 ? `The orange bar is what still has to come from somewhere: ${fmt(gap)} bopd.` : `The scenario clears the target by ${fmt(-gap)} bopd.`);
+}
+
+// sensitivity: swing in 2027 average across each lever's record range (±25% where the record is one number)
+function drawTorn(v){
+  const base = avgOf(model(v), M27);
+  const swing = RATE_KEYS.map(key => {
+    const c = CK[key];
+    let [lo, hi] = key === 'adds' ? [0, needAdds(v) ?? c[4]] : key === 'hstart' ? [0, 6] : key === 'cap' ? [45000, 80000] : c[8];
+    if (lo === hi) { lo = lo * 0.75; hi = hi * 1.25; }
+    lo = Math.max(c[3], lo); hi = Math.min(c[4], hi);
+    const a = avgOf(model({...v, [key]: lo}), M27), b = avgOf(model({...v, [key]: hi}), M27);
+    return {key, label: c[1], lo, hi, a, b, w: Math.abs(b - a)};
+  }).sort((x, y) => y.w - x.w);
+  if (mTorn) mTorn.destroy();
+  mTorn = new Chart(document.getElementById('mTorn'), {type: 'bar',
+    data: {labels: swing.map(s => s.label), datasets: [{data: swing.map(s => [Math.min(s.a, s.b), Math.max(s.a, s.b)]), backgroundColor: swing.map((s, i) => i < 3 ? '#e3120b' : '#9a9a9a')}]},
+    options: {indexAxis: 'y', responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {legend: {display: false}, tooltip: {callbacks: {label: c => { const s = swing[c.dataIndex]; return `${fmtC(CK[s.key], Math.round(s.lo))} → ${fmt(s.a)} · ${fmtC(CK[s.key], Math.round(s.hi))} → ${fmt(s.b)} bopd`; }}}},
+      scales: {x: {beginAtZero: false, ticks: {font: {size: 11}}, title: {display: true, text: '2027 average bopd', font: {size: 11}}}, y: {ticks: {font: {size: 11}}, grid: {display: false}}}}});
+  const top = swing[0], $ = w => '$' + fmt(w * 365 * v.net / 1e6) + 'M';
+  document.getElementById('mTornNote').textContent = `Each bar moves one lever across its record range (±25% where the record is one number; Hondo restart Oct 2026 to Apr 2027) and holds the rest. ` +
+    `${top.label} swings the 2027 average by ${fmt(top.w)} bopd, about ${$(top.w)} a year at $${v.net}. Scenario: ${fmt(base)} bopd.`;
+}
+
+function drawTable(v, rows){
+  let cum = 0;
+  const body = rows.map(r => { const usd = r.tot * v.net; cum += usd * dim(r.m) / 1e6; return [mlabel(r.m), fmt(r.hh), fmt(r.ho), fmt(r.tot), r.raw > v.cap ? 'yes' : '', '$' + fmt(usd), '$' + (Math.round(cum * 10) / 10) + 'M']; });
+  document.getElementById('mTable').innerHTML = `<thead><tr><th>Month</th><th>H+H bopd</th><th>Hondo bopd</th><th>Total bopd</th><th>Cap binds</th><th>Net $/day</th><th>Cumulative net</th></tr></thead><tbody>` +
+    body.map(r => `<tr>${r.map(x => `<td>${x}</td>`).join('')}</tr>`).join('') + '</tbody>';
+}
+
+// presets, sharing and wiring
+function applyPreset(id){
+  presetOn = id; setV(PRESETS[id].v());
+  document.querySelectorAll('#mPreset button').forEach(b => b.classList.toggle('on', b.dataset.v === id));
+  document.getElementById('mPresetNote').textContent = PRESETS[id].note;
+  runModel();
+}
+document.getElementById('mPreset').addEventListener('click', e => { const b = e.target.closest('button'); if (b) applyPreset(b.dataset.v); });
+CTL.forEach(c => document.getElementById('c_' + c[0]).addEventListener('input', () => {
+  presetOn = null; document.querySelectorAll('#mPreset button').forEach(b => b.classList.remove('on'));
+  document.getElementById('mPresetNote').textContent = 'Custom scenario.';
+  runModel();
+}));
+document.getElementById('mReset').addEventListener('click', () => applyPreset('record'));
+document.getElementById('mGuide').addEventListener('change', runModel);
+document.getElementById('mTarget').addEventListener('change', runModel);
+document.getElementById('mShare').addEventListener('click', () => {
+  const v = readV(), q = new URLSearchParams(CTL.map(c => [c[0], v[c[0]]]));
+  q.set('t', document.getElementById('mTarget').value);
+  const u = location.origin + location.pathname + '#rate&' + q.toString();
+  try { history.replaceState(null, '', '#rate&' + q.toString()); } catch (e) {}
+  const b = document.getElementById('mShare'), done = () => { b.textContent = 'Link copied'; setTimeout(() => b.textContent = 'Copy link to this scenario', 1800); };
+  (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(done, () => { prompt('Copy this link:', u); });
+});
+document.getElementById('mCsv').addEventListener('click', () => {
+  const v = readV(), tag = CTL.map(c => c[0] + v[c[0]]).join('_');
+  downloadCSV(`syu_rate_scenario_${tag}.csv`, ['month', 'harmony_heritage_bopd', 'hondo_bopd', 'total_bopd', 'cap_binds', 'net_usd_per_day'].concat(CTL.map(c => 'in_' + c[0])),
+    mRows.map((r, i) => [r.m, r0(r.hh), r0(r.ho), r0(r.tot), r.raw > v.cap ? 1 : 0, r0(r.tot * v.net)].concat(i === 0 ? CTL.map(c => v[c[0]]) : CTL.map(() => ''))));
+});
+const hr = location.hash.match(/^#rate&(.*)$/);
+if (hr) {
+  const q = new URLSearchParams(hr[1]), v = {};
+  CTL.forEach(c => { if (q.has(c[0])) v[c[0]] = +q.get(c[0]); });
+  if (q.has('t') && TARGETS.some(t => t.id === q.get('t'))) document.getElementById('mTarget').value = q.get('t');
+  setV(v); presetOn = null;
+  document.querySelectorAll('#mPreset button').forEach(b => b.classList.remove('on'));
+  document.getElementById('mPresetNote').textContent = 'Shared scenario.';
+  runModel();
+  setTimeout(() => document.getElementById('scenario').scrollIntoView(), 300);
+} else applyPreset('record');
 
 // ---------- map
 const map = L.map('map', {scrollWheelZoom: false}).setView([34.42, -120.15], 11);
