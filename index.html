@@ -423,7 +423,7 @@
     <h3>Who regulates which segment</h3>
     <table class="juris">
       <tr><th>Segment</th><th>Route</th><th>Regulator today</th><th>Open items</th></tr>
-      <tr><td>Offshore SYU lines</td><td>Hondo, Harmony, Heritage to LFC</td><td>MMA (formerly BSEE), federal OCS</td><td>Hondo commissioning approval expected Oct 2026 (Sable)</td></tr>
+      <tr><td>Offshore SYU lines</td><td>Hondo, Harmony, Heritage to LFC</td><td>MMA (formerly BSEE), federal OCS</td><td>Hondo: final paperwork filed; MMA physical inspection and first production scheduled for Nov 2026 (Sable, Nov 9)</td></tr>
       <tr><td>CA-324 (former Line 901)</td><td>LFC to Gaviota Pump Station</td><td>PHMSA, per Aug 19, 2026 C.D. Cal. order replacing OSFM in the consent decree</td><td>Jurisdiction merits at 9th Cir.; Coastal Commission SB 237 notice (no hearing set as of Aug 10)</td></tr>
       <tr><td>CA-325 (former Line 903)</td><td>Gaviota to Pentland via Sisquoc; crosses Gaviota State Park</td><td>PHMSA, same order</td><td>State Parks appeal of the Aug 19 order (filed Aug 21); jurisdiction merits at 9th Cir.</td></tr>
     </table>
@@ -568,7 +568,7 @@ const stats = [
   [fmt(hhPot - hhAct), 'bopd deferred', 'potential minus actual'],
   [g('producing') + ' / ' + g('idle'), 'producing / idle completions', 'BSEE, ' + mlabel(latest)],
   [pct(unitWC), 'unit water cut', 'BSEE, ' + mlabel(latest)],
-  ['~45K', 'bopd Oct 2026 exit (est.)', 'Sable 8-K, Sept 28'],
+  ['~31K', 'bopd Nov 2026 sales (est.)', 'Sable deck, Nov 9'],
 ];
 document.getElementById('stats').innerHTML = stats.map(s =>
   `<div class="stat"><div class="v">${s[0]}</div><div class="l">${s[1]}</div><div class="s">${s[2]}</div></div>`).join('');
@@ -679,13 +679,13 @@ const CTL = [
   ['pot', 'Harmony + Heritage potential', r100(hhPot), 20000, 50000, 500, 'bopd', `${mlabel(latest)} potential from BSEE`, [r100(Math.min(...pot26)), r100(Math.max(...pot26)), 'range of 2026 federal months']],
   ['up', 'Uptime', Math.round(hhAct / hhPot * 100), 50, 100, 1, '%', `${mlabel(latest)} actual/potential`, [Math.round(hhAct / hhPot * 100), Math.round(exUp * 100), `${mlabel(latest)} to Exxon's 2012-14 average`]],
   ['dec', 'Annual decline', Math.max(...exDecl), 0, 25, 1, '%/yr', 'Exxon held ~1%/yr with active well work, 2011 to 2015', [Math.min(...exDecl), Math.max(...exDecl), 'Exxon-era platforms with active well work; less work means steeper (default is the top of this)']],
-  ['adds', 'Harmony + Heritage adds since June', 0, 0, 50, 1, 'wells', 'perf-adds or reactivations', null],
+  ['adds', `Harmony + Heritage adds since ${mlabel(latest)}`, 0, 0, 50, 1, 'wells', 'perf-adds or reactivations', null],
   ['per', 'Uplift per add', 600, 100, 1500, 50, 'bopd', 'Sable estimate: ~600 bopd per perf-add', [600, 600, "Sable's estimate"]],
-  ['hstart', 'Hondo restart', 2, 0, 9, 1, 'month', 'months after Oct 2026', [0, 2, 'Sable guides Q4 2026']],
+  ['hstart', 'Hondo restart', 2, 0, 9, 1, 'month', 'months after Oct 2026', [1, 2, 'Sable guides a November restart and December sales (Nov 9)']],
   ['hbase', 'Hondo base rate', r100(hondoPre), 0, 6000, 100, 'bopd', 'pre-shut-in Jan to Apr 2015', [r100(hondoPre), r100(hondoPre), 'what the wells made before shut-in']],
   ['hadds', 'Hondo perf-adds', 9, 0, 15, 1, 'wells', 'Sable plan: 9 of 15 production wells', [9, 9, "Sable's plan"]],
-  ['cap', 'Facility / sales cap', 60000, 30000, 80000, 1000, 'bopd', 'ceiling from LFC processing or buyers', [45000, 80000, "Sable's ~45K October exit means the July 40K buyer cap is behind it", 'min']],
-  ['net', 'Netback per barrel', 48, 25, 80, 1, '$/bbl', 'realized price × net revenue interest', [46, 49, "Sable's realized $55-59 × 83.6% NRI"]],
+  ['cap', 'Facility / sales cap', 60000, 30000, 80000, 1000, 'bopd', 'ceiling from LFC processing or buyers', [31000, 80000, "Buyers took ~31K in November (Sable est.) after the October curtailment; Sable sees ~50K possible in December", 'min']],
+  ['net', 'Netback per barrel', 48, 25, 80, 1, '$/bbl', 'realized price × net revenue interest', [46, 51, "Sable's 2H26 assumption of $55-59, and $61.08 realized in Q3, × 83.6% NRI"]],
   ['cost', 'Cost per perf-add', 800, 300, 2000, 50, '$K', 'rig, perforating and workover', [800, 800, "Sable's ~$800K per perf-add"]],
 ];
 const CK = Object.fromEntries(CTL.map(c => [c[0], c]));
@@ -719,10 +719,10 @@ function model(v){
 }
 const avgOf = (rows, ms, hhOnly) => ms.reduce((s, m) => { const r = rows.find(x => x.m === m); return s + (hhOnly ? r.hh : r.tot); }, 0) / ms.length;
 
-// Sable targets, gross. Aug 10 FY27 guide is boe/d, so oil alone sits below it.
+// Sable targets, gross. FY27 guide (Aug 10, kept Nov 9) is boe/d, so oil alone sits below it.
 const TARGETS = [
-  {id: 'oct', label: "Oct 2026 exit: ~45,000 bopd from Harmony + Heritage (Sep 28, pre-Hondo)", val: 45000, months: ['2026-10'], hhOnly: true},
-  {id: 'y27', label: '2027 average: 52,500 (Aug 10 FY27 gross guide midpoint, boe/d)', val: 52500, months: M27},
+  {id: 'dec', label: "Dec 2026: ~50,000 bopd sales, all platforms (Nov 9 deck, 'potentially')", val: 50000, months: ['2026-12']},
+  {id: 'y27', label: '2027 average: 52,500 (FY27 gross guide midpoint, kept Nov 9, boe/d)', val: 52500, months: M27},
   {id: 'ramp', label: 'Dec 2027: 62,000 fully ramped (Jun 1 gross guide)', val: 62000, months: ['2027-12']},
 ];
 document.getElementById('mTarget').innerHTML = TARGETS.map(t => `<option value="${t.id}">${esc(t.label)}</option>`).join('');
@@ -739,15 +739,15 @@ function solveLever(v, key, tg){
   for (const x of steps) if (hit({...v, [key]: x}, tg) >= tg.val) return x;
   return null;
 }
-const band = (key, v) => key === 'adds' ? [needAdds(v) ?? CK.adds[4], CK.adds[4], "what Sable's ~45K October exit needs at these settings", 'min'] : CK[key][8];
+const band = (key, v) => key === 'adds' ? [needAdds(v) ?? CK.adds[4], CK.adds[4], "what Sable's ~50K December figure needs at these settings", 'min'] : CK[key][8];
 const inBand = (key, x, v) => { const [lo, hi] = band(key, v); return x >= lo && x <= hi; };
 
 let mChart, mFall, mTorn, mRows = [], presetOn = 'record';
 const PRESETS = {
-  record: {note: "Record only: every lever at what the public record shows today, with no well work since June that BSEE can't see yet.", v: () => Object.fromEntries(CTL.map(c => [c[0], c[2]]))},
-  sable: {note: "Sable's case: enough Harmony + Heritage adds to reach Sable's ~45K October exit, Hondo back in November after MMA approval, the plan's 9 Hondo perf-adds, and a cap that no longer binds.",
+  record: {note: "Record only: every lever at what the public record shows today, with no well work since the latest federal month that BSEE can't see yet.", v: () => Object.fromEntries(CTL.map(c => [c[0], c[2]]))},
+  sable: {note: "Sable's case: enough Harmony + Heritage adds to reach Sable's ~50K December figure, Hondo back in November after the MMA inspection, the plan's 9 Hondo perf-adds, and buyers who take every barrel.",
     v: () => { const v = {...PRESETS.record.v(), hstart: 1, cap: 70000}; v.adds = needAdds(v) ?? CK.adds[4]; return v; }},
-  down: {note: 'Downside: no adds since June, uptime slips to 80%, decline of 12% with little well work, perf-adds make 400 bopd, Hondo slips to April 2027 with 5 perf-adds, and sales stay capped at 45,000.',
+  down: {note: 'Downside: no adds since the latest federal month, uptime slips to 80%, decline of 12% with little well work, perf-adds make 400 bopd, Hondo slips to April 2027 with 5 perf-adds, and sales stay capped at 45,000.',
     v: () => ({...PRESETS.record.v(), up: 80, dec: 12, adds: 0, per: 400, hstart: 6, hadds: 5, cap: 45000})},
 };
 
@@ -757,7 +757,7 @@ function runModel(){
   const at = m => rows.find(r => r.m === m);
   const avg27 = avgOf(rows, M27);
   document.getElementById('mOut').innerHTML = [
-    [fmt(at('2026-10').tot), 'Oct 2026 bopd (Sable est. exit ~45K)'],
+    [fmt(at('2026-11').tot), 'Nov 2026 bopd (Sable est. sales ~31K)'],
     [fmt(at('2026-12').tot), 'Dec 2026 bopd'],
     [fmt(avg27), '2027 average bopd'],
   ].map(x => `<div><div class="v">${x[0]}</div><div class="l">${x[1]}</div></div>`).join('');
@@ -799,7 +799,7 @@ function runModel(){
 }
 
 function drawMain(v, rows){
-  const disc = {'2026-07': 32000, '2026-08': 32000, '2026-09': 34000, '2026-10': 45000};
+  const disc = {'2026-09': 34000, '2026-11': 31000};
   const guide = document.getElementById('mGuide').checked;
   const g = (a, b) => MM.map(m => m >= '2027-01' ? b : m >= '2026-07' ? a : null);
   if (mChart) mChart.destroy();
@@ -807,7 +807,7 @@ function drawMain(v, rows){
     data: {labels: MM.map(mlabel), datasets: [
       {type: 'bar', label: 'Harmony + Heritage (model)', data: rows.map(r => r.hh), backgroundColor: '#1f77b4', stack: 's'},
       {type: 'bar', label: 'Hondo (model)', data: rows.map(r => r.ho), backgroundColor: '#7a5195', stack: 's'},
-      {type: 'line', label: "Sable's ~45K exit", data: MM.map(m => m >= '2026-10' ? 45000 : null), borderColor: '#2a7d2a', borderDash: [4, 4], borderWidth: 2, pointRadius: 0, stack: 'g'},
+      {type: 'line', label: "Sable's ~50K December figure", data: MM.map(m => m >= '2026-12' ? 50000 : null), borderColor: '#2a7d2a', borderDash: [4, 4], borderWidth: 2, pointRadius: 0, stack: 'g'},
       ...(Math.max(...rows.map(r => r.raw)) > v.cap * 0.8 ? [{type: 'line', label: 'Facility / sales cap', data: MM.map(() => v.cap), borderColor: '#555', borderDash: [2, 3], borderWidth: 2, pointRadius: 0, stack: 'c'}] : []),
       ...(guide ? [
         {type: 'line', label: 'Jun 1 guide (boe/d)', data: g(45000, 57500), borderColor: '#999', borderDash: [8, 4], borderWidth: 2, pointRadius: 0, stepped: true, stack: 'g1'},
@@ -818,7 +818,7 @@ function drawMain(v, rows){
     options: chartOpts('bopd', {stacked: true})
   });
   document.getElementById('mSlip').innerHTML = guide
-    ? `Guidance lines are midpoints of Sable's gross ranges (Jun 1: Q2-Q4 2026 42.5-47.5, 2027 55-60 kboe/d; Aug 10: 2H26 47.5-52.5, FY27 50-55 kboe/d). They include gas, so oil alone sits lower. Hondo's restart date has moved four times: June 2026 (Mar 16), end-Q2 (Mar 30), Q3 (Jun 1), September (Aug 10), Q4 (Sep 28). <a href="#guidance">Full guidance history</a>.`
+    ? `Guidance lines are midpoints of Sable's gross ranges (Jun 1: Q2-Q4 2026 42.5-47.5, 2027 55-60 kboe/d; Aug 10: 2H26 47.5-52.5, FY27 50-55 kboe/d). They include gas, so oil alone sits lower. On Nov 9 Sable cut 2H26 net sales to 20-30 kboe/d (from 40-45) after its buyer curtailed purchases on Oct 6, and kept the FY27 range. Hondo's restart date has moved four times: June 2026 (Mar 16), end-Q2 (Mar 30), Q3 (Jun 1), September (Aug 10), Q4 (Sep 28). On Nov 9 Sable narrowed it to a November restart with sales in December. <a href="#guidance">Full guidance history</a>.`
     : '';
 }
 
@@ -832,7 +832,7 @@ function drawSolve(v){
     if (now >= tg.val) { val = fmtC(c, v[key]); tag = '<span class="tag g">already there</span>'; }
     else if (x == null) { val = 'no value'; tag = '<span class="tag r">not with this lever alone</span>'; }
     else if (x > c[4] || x < c[3]) { val = fmtC(c, x); tag = '<span class="tag r">far outside the record</span>'; }
-    else if (key === 'adds') { val = fmtC(c, x); tag = '<span class="tag n">since June; BSEE can\'t see it yet</span>'; }
+    else if (key === 'adds') { val = fmtC(c, x); tag = `<span class="tag n">since ${mlabel(latest)}; BSEE can't see it yet</span>`; }
     else { val = fmtC(c, x); tag = inBand(key, x, v) ? '<span class="tag g">inside the record</span>' : '<span class="tag a">a stretch</span>'; }
     return `<tr><td>${c[1]}</td><td class="n">${val}</td><td>${tag}</td></tr>`;
   });
@@ -878,7 +878,7 @@ function drawTorn(v){
   const base = avgOf(model(v), M27);
   const swing = RATE_KEYS.map(key => {
     const c = CK[key];
-    let [lo, hi] = key === 'adds' ? [0, needAdds(v) ?? c[4]] : key === 'hstart' ? [0, 6] : key === 'cap' ? [45000, 80000] : c[8];
+    let [lo, hi] = key === 'adds' ? [0, needAdds(v) ?? c[4]] : key === 'hstart' ? [0, 6] : key === 'cap' ? [31000, 80000] : c[8];
     if (lo === hi) { lo = lo * 0.75; hi = hi * 1.25; }
     lo = Math.max(c[3], lo); hi = Math.min(c[4], hi);
     const a = avgOf(model({...v, [key]: lo}), M27), b = avgOf(model({...v, [key]: hi}), M27);
@@ -1113,7 +1113,8 @@ document.querySelectorAll('ol.rank').forEach(ol => ol.addEventListener('click', 
 
 // ---------- Hondo board
 document.getElementById('hondoCallout').innerHTML =
-  `<b>Sable's plan (8-K, Sept 28, 2026):</b> perf-adds on 9 of Hondo's 15 production wells before restart, each estimated at ~600 bopd incremental for ~$800K. Restart expected in Q4 2026, after MMA approval of the commissioning submission (expected in October).<br>
+  `<b>Sable's plan (8-K, Sept 28, 2026):</b> perf-adds on 9 of Hondo's 15 production wells before restart, each estimated at ~600 bopd incremental for ~$800K. Restart was then expected in Q4 2026.<br>
+   <b>Update (10-Q and release, Nov 9, 2026):</b> reconstruction and internal commissioning are complete and the final paperwork is with the MMA. Physical MMA inspections and first production are scheduled for November, with all producing wells flowing to sales in December at a forecast ~10,000 gross bopd.<br>
    <b>Public record:</b> ${hondo.filter(w => w.pre_rate > 0).length} Hondo completions made ~${fmt(hondoPre)} bopd combined in Jan to Apr 2015. BSEE reports ${hondo.length} completions today: ${hondo.filter(w => w.group === 'idle').length} idle and ${hondo.filter(w => w.group === 'injection').length} injection. On Sable's numbers, 9 perf-adds would add ~5,400 bopd on top of base rates.`;
 const maxH = hondo[0].pre_rate || 1;
 document.getElementById('hondoRank').innerHTML = hondo.filter(w => w.group !== 'injection').map(w =>
@@ -1196,6 +1197,7 @@ renderWW();
 const SRC_HONDO = 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000113/a991_socxhondopressrelease.htm';
 const SRC_COMP = 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000092/a993certainoperationalands.htm';
 const SRC_CAP = 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000105/a991_2q26xpr.htm';
+const SRC_Q3 = 'https://www.sec.gov/Archives/edgar/data/1831481/000183148126000120/socc-20260930.htm';
 const byWhy = k => wells.filter(w => w.why === k).sort((a, b) => b.pre_rate - a.pre_rate);
 const wlist = ws => ws.map(w => `<a data-api="${w.api}">${esc(w.name)}</a> ${w.pre_rate >= 1 ? fmt(w.pre_rate) : '–'}`).join(' · ');
 const sumPre = ws => ws.reduce((s, w) => s + (w.pre_rate || 0), 0);
@@ -1203,11 +1205,11 @@ const gH = byWhy('hondo'), gC = byWhy('capacity'), gM = byWhy('mech'), gL = byWh
 const wet = gC.filter(w => w.pre_wc != null && w.pre_wc >= 0.85);
 const idleWhyCards = [
   [gH, 'hondo', 'Likelihood: high. Timing depends on one approval.',
-   `The whole platform is still shut. Restart is waiting on MMA approval of Sable's commissioning submission, which Sable expected in October 2026, with restart in Q4 2026. Perf-adds go on 9 of the 15 production wells first. The date has slipped from June to end-Q2, Q3, September, then Q4. These wells made ~${fmt(sumPre(gH))} bopd in Jan to Apr 2015.`,
+   `The whole platform is still shut. Sable says reconstruction and commissioning are complete and its final paperwork is with the MMA. Physical MMA inspections and first production are scheduled for November 2026, with sales in December (Nov 9). The Sept 28 plan put perf-adds on 9 of the 15 production wells first. The date has slipped from June to end-Q2, Q3, September, then Q4. These wells made ~${fmt(sumPre(gH))} bopd in Jan to Apr 2015.`,
    `${link(SRC_HONDO, 'Sable 8-K, Sept 28, 2026')}`],
   [gC, 'capacity', 'Likelihood: high. These wells have already flowed since the restart.',
-   `They produced at some point since early 2025 and were shut in by ${mlabel(latest)}. Sable names three limits: the number of wells online is limited by compressors because gas output is lower than expected (52 of 77 producers online on June 18), Las Flores Canyon can process about 80% of Harmony and Heritage capacity, and downstream partners capped sales at 40,000 bopd from July. When capacity is short, some wells stay shut in.${wet.length ? ` The wettest (${wet.map(w => esc(w.name)).join(', ')}, 85%+ water in 2015) are likely last back, because water handling is part of the limit.` : ''}`,
-   `${link(SRC_COMP, 'Sable 8-K exhibit, July 2026')} · ${link(SRC_HONDO, '8-K, Sept 28')} · ${link(SRC_CAP, 'Q2 release')}`],
+   `They produced at some point since early 2025 and were shut in by ${mlabel(latest)}. Sable names three limits: the number of wells online is limited by compressors because gas output is lower than expected (52 of 77 producers online on June 18), Las Flores Canyon can process about 80% of Harmony and Heritage capacity, and downstream partners capped sales at 40,000 bopd from July. On Oct 6 the sole buyer curtailed purchases for refinery tank work, and Sable cut production to manage storage; three more Los Angeles refiners began buying in early November (10-Q, Nov 9). When capacity is short, some wells stay shut in.${wet.length ? ` The wettest (${wet.map(w => esc(w.name)).join(', ')}, 85%+ water in 2015) are likely last back, because water handling is part of the limit.` : ''}`,
+   `${link(SRC_COMP, 'Sable 8-K exhibit, July 2026')} · ${link(SRC_HONDO, '8-K, Sept 28')} · ${link(SRC_CAP, 'Q2 release')} · ${link(SRC_Q3, '10-Q, Nov 9')}`],
   [gM, 'mech', 'Likelihood: medium. Probably needs rig work.',
    `Harmony and Heritage completions with a real 2015 rate that haven't made oil since the restart, even while their neighbors came back. Capacity alone doesn't explain that, so a mechanical or reservoir problem is more likely. These are workover candidates to price against a ~$800K perf-add.`,
    'BSEE OGOR-A'],
@@ -1239,7 +1241,7 @@ document.getElementById('bookCsv').addEventListener('click', () => downloadCSV(`
 // ---------- production room
 const months = D.unit.map(r => r[0]);
 const platSeries = n => { const m = Object.fromEntries(D.by_platform[n].map(r => [r[0], r])); return months.map(mm => m[mm] || [mm, 0, 0, 0]); };
-const DISCLOSED = {'2026-07': 32000, '2026-08': 32000, '2026-09': 34000, '2026-10': 45000};
+const DISCLOSED = {'2026-07': 32000, '2026-08': 32000, '2026-09': 34000, '2026-11': 31000};
 let prodChart;
 function drawProd(from){
   const extra = Object.keys(DISCLOSED).filter(m => !months.includes(m));
